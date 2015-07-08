@@ -1,0 +1,11 @@
+.DS_Store
+*.swp
+*.tmp
+*.sublime-project
+*.sublime-workspace
+
+conf.ini
+
+/ignore/
+node_modules/
+Graphics/Logo

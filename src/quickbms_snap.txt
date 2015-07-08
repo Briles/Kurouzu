@@ -1,0 +1,29 @@
+#quickbms script
+idstring "pans"
+comtype SNAPPY
+get NBASE asize
+get VERSION long
+get FILES long
+get TMP long
+math NBASE - TMP
+set FBASE NBASE
+set TMP FILES
+math TMP * 0x20
+math FBASE - TMP
+for i = 0 < FILES
+goto FBASE
+get NOFF long
+math NOFF + NBASE
+get SIZE long
+get ZSIZE long
+getdstring NULL 0xC
+get OFFSET longlong
+savepos FBASE
+goto NOFF
+get NAME string
+if SIZE == ZSIZE
+log NAME OFFSET SIZE
+else
+clog NAME OFFSET ZSIZE SIZE
+endif
+next i
