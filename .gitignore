@@ -8,4 +8,4 @@ conf.ini
 
 /ignore/
 node_modules/
-Graphics/Logo
+Graphics/Logo/*.ai
