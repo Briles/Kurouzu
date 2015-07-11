@@ -11,7 +11,7 @@ Kurouzu is a Windows Command Line utility for extracting, renaming, and scaling 
 * [Heroes of Newerth](http://www.heroesofnewerth.com/?home "Heroes of Newerth")
 * [Heroes of the Storm (unstable)](http://www.battle.net/heroes/ "Heroes of the Storm")
 * [League of Legends](http://www.leagueoflegends.com/ "League of Legends")
-* [Smite](www.hirezstudios.com/smite "Smite")
+* [Smite](http://www.hirezstudios.com/smite "Smite")
 * [StarCraft II](http://www.battle.net/sc2/ "StarCraft II")
 * [Strife (unstable)](https://strife.com/ "Strife")
 * [Unreal Tournament 4 (unstable)](https://www.unrealtournament.com/ "Unreal Tournament 4")
