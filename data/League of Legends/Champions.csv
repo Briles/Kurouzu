@@ -7,6 +7,7 @@ Anivia*,anivia
 Annie*,annie
 Ashe*,ashe
 Azir*,azir
+Bard*,bard
 Blitzcrank*,blitzcrank
 Brand*,brand
 Braum*,braum
@@ -19,6 +20,7 @@ Darius*,darius
 Diana*,diana
 Draven*,draven
 DrMundo*,drmundo
+Ekko*,ekko
 Elise*,elise
 Evelynn*,evelynn
 Ezreal*,ezreal
@@ -75,6 +77,7 @@ Poppy*,poppy
 Quinn*,quinn
 Rammus*,rammus
 Random_0,random
+RekSai*,reksai
 Renekton*,renekton
 Rengar*,rengar
 Riven*,riven
@@ -93,6 +96,7 @@ Sona*,sona
 Soraka*,soraka
 Swain*,swain
 Syndra*,syndra
+TahmKench*,tahmkench
 Talon*,talon
 Taric*,taric
 Teemo*,teemo
@@ -114,6 +118,7 @@ Viktor*,viktor
 Vladimir_0,vladimir
 Vladimir_S*,vladimir
 Vladimir_W*,vladimir-web
+Voidspawn*,voidspawn
 Volibear*,volibear
 Warwick*,warwick
 MonkeyKing*,wukong
@@ -126,3 +131,4 @@ Zed*,zed
 Ziggs*,ziggs
 Zilean*,zilean
 Zyra*,zyra
+Voidgate*,zzrotportal

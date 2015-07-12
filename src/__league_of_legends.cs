@@ -31,13 +31,13 @@ namespace SpawnedIn.GGA.Games
             string source_path = ini.INIReadValue("Game Paths", "League of Legends");
             // Get the source
             string[] swfs_to_get = {"ImagePack_spells.swf","ImagePack_masteryIcons.swf","ImagePack_items.swf"};
-            Parallel.ForEach(Directory.GetFiles(source_path, "ImagePack_*.swf", SearchOption.AllDirectories).Where(f => swfs_to_get.Contains(Path.GetFileName(f), StringComparer.OrdinalIgnoreCase)).ToList(), swf_to_get =>
+            foreach(string swf_to_get in Directory.GetFiles(source_path, "ImagePack_*.swf", SearchOption.AllDirectories).Where(f => swfs_to_get.Contains(Path.GetFileName(f), StringComparer.OrdinalIgnoreCase)).ToList())
             {
                 File.Copy(swf_to_get,Path.Combine(Globals.Paths.Assets,"Source","League of Legends",Path.GetFileName(swf_to_get)) , true);
                 Console.WriteLine("Copying {0}", Path.GetFileName(swf_to_get));
-            });
+            }
             // Extract the SWFs
-            Parallel.ForEach(Directory.GetFiles(Path.Combine(Globals.Paths.Assets, "Source", "League of Legends"), "*.swf", SearchOption.AllDirectories).ToList(), swf =>
+            foreach(string swf in Directory.GetFiles(Path.Combine(Globals.Paths.Assets, "Source", "League of Legends"), "*.swf", SearchOption.AllDirectories).ToList())
             {
                 string output_path = null;
                 switch (Path.GetFileName(swf))
@@ -55,7 +55,7 @@ namespace SpawnedIn.GGA.Games
                         break;
                 }
                 Helper.SWFExtract(swf, Path.Combine(Globals.Paths.Assets, output_path, "Source"));
-            });
+            }
             // Copy the rest of the source assets
             // Copy jobs take the form { output path = string, { string start path, bool recursion flag, string search pattern, string exclude pattern } }
             string source_releases = @"RADS\projects\lol_air_client\releases";
@@ -85,7 +85,7 @@ namespace SpawnedIn.GGA.Games
                 new ScalingJob(masteries, "*.png"),
                 new ScalingJob(runes, "*.png")
             };
-            Helper.BatchIMScale(scalingjobs);
+            // Helper.BatchIMScale(scalingjobs);
         }
     }
 }

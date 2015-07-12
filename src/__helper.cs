@@ -44,7 +44,7 @@ namespace SpawnedIn.GGA.Helpers
                             unused.Add(nOld);
                             continue;
                         }
-                        Parallel.ForEach(matches, asset =>
+                        foreach(string asset in matches)
                         {
                             string filename = Path.GetFileName(asset);
                             string file_ext = Path.GetExtension(asset);
@@ -57,7 +57,7 @@ namespace SpawnedIn.GGA.Helpers
                                 File.Delete(asset);
                             }
                             assets.Remove(asset);
-                        });
+                        }
                     }
                 }
                 // Don't log anything if logging is disabled
@@ -347,11 +347,11 @@ namespace SpawnedIn.GGA.Helpers
 
         public static void BuildDirectoryTree(string[] dirs)
         {
-            Parallel.ForEach(dirs, dir =>
+            foreach(string dir in dirs)
             {
                 Directory.CreateDirectory(Path.Combine(Globals.Paths.Assets, dir, "Source"));
                 Console.WriteLine("Creating {0}", dir);
-            });
+            }
         }
 
         public static void BuildSourceDirectory(string dir_name)
@@ -397,7 +397,7 @@ namespace SpawnedIn.GGA.Helpers
                 }
             };
             pswfextractinit.Start();
-            Parallel.ForEach(swf_pairs, swf_pair =>
+            foreach(string swf_pair in swf_pairs)
             {
                 string[] pair = swf_pair.Split(',');
                 string swf_id = pair[0];
@@ -419,12 +419,12 @@ namespace SpawnedIn.GGA.Helpers
                     pswfextract.Start();
                     Console.WriteLine("Extracting {0}", swf_name);
                 }
-            });
+            }
         }
 
         public static void BatchFileCopy(List<CopyJob> copyjobs)
         {
-            Parallel.ForEach(copyjobs, job =>
+            foreach(SpawnedIn.GGA.Helpers.CopyJob job in copyjobs)
             {
                 SearchOption recursion = SearchOption.TopDirectoryOnly;
                 if (job.Recursion == true)
@@ -442,13 +442,13 @@ namespace SpawnedIn.GGA.Helpers
                     Regex r = new Regex(string.Format("^{0}$",excludepattern.Replace("*",".*")), RegexOptions.IgnoreCase);
                     founds = (Directory.GetFiles(job.Path, job.SearchPattern, recursion).Where(f => !r.IsMatch(Path.GetFileName(f)))).ToArray();
                 }
-                Parallel.ForEach(founds, found =>
+                foreach(string found in founds)
                 {
                     string filename = Path.GetFileName(found);
                     Console.WriteLine("Copying {0}", filename);
                     File.Copy(found, Path.Combine(Globals.Paths.Assets, job.OutputPath, "Source", filename), true);
-                });
-            });
+                }
+            }
         }
 
         public static IEnumerable<string> EnumerateDirectories(string parentDirectory, string searchPattern, SearchOption searchOpt)

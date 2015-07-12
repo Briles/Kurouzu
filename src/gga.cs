@@ -32,7 +32,15 @@ namespace SpawnedIn.GGA.Defaults
             public static readonly string[] Games = {"Dawngate", "Dota 2", "Heroes of Newerth", "Heroes of the Storm", "League of Legends", "Smite", "StarCraft II", "Strife"};
             public static readonly Dictionary<string, string> GameBinaryPaths = new Dictionary<string, string>
             {
-                { "Dawngate", "Dawngate.exe" },{ "Dota 2", "dota.exe" },{ "Heroes of Newerth", "hon.exe" },{ "Heroes of the Storm", "Heroes of the Storm.exe" },{ "League of Legends", "lol.launcher.exe" },{ "Smite", "Smite.exe" },{ "StarCraft II", "StarCraft II.exe" },{ "Strife", "strife.exe" }
+                { "Dawngate", "Dawngate.exe" },
+                { "Dota 2", "dota.exe" },
+                { "Hearthstone", "Hearthstone.exe" },
+                { "Heroes of Newerth", "hon.exe" },
+                { "Heroes of the Storm", "Heroes of the Storm.exe" },
+                { "League of Legends", "lol.launcher.exe" },
+                { "Smite", "Smite.exe" },
+                { "StarCraft II", "StarCraft II.exe" },
+                { "Strife", "strife.exe" }
             };
             public static readonly Dictionary<string, string> GameSourcePaths = new Dictionary<string, string>
             {
@@ -41,6 +49,9 @@ namespace SpawnedIn.GGA.Defaults
                 },
                 {
                     "Dota 2", @"C:\Program Files (x86)\Steam\SteamApps\common\dota 2 beta\"
+                },
+                {
+                    "Hearthstone", @"C:\Program Files (x86)\Hearthstone\"
                 },
                 {
                     "Heroes of Newerth", @"C:\Program Files (x86)\Heroes of Newerth\"
@@ -63,7 +74,15 @@ namespace SpawnedIn.GGA.Defaults
             };
             public static readonly Dictionary<string, int> GamePathLeaves = new Dictionary<string, int>
             {
-                { "Dawngate", 1 },{ "Dota 2", 1 },{ "Heroes of Newerth", 1 },{ "Heroes of the Storm", 1 },{ "League of Legends", 1 },{ "Smite", 3 },{ "StarCraft II", 1 },{ "Strife", 2 }
+                { "Dawngate", 1 },
+                { "Dota 2", 1 },
+                { "Hearthstone", 1 },
+                { "Heroes of Newerth", 1 },
+                { "Heroes of the Storm", 1 },
+                { "League of Legends", 1 },
+                { "Smite", 3 },
+                { "StarCraft II", 1 },
+                { "Strife", 2 }
             };
         }
     }
@@ -81,7 +100,6 @@ namespace SpawnedIn.GGA.Main
             INIFile ini = new INIFile(Globals.Paths.Conf);
             if (!File.Exists(Globals.Paths.Conf))
             {
-                Console.ForegroundColor = ConsoleColor.Green;
                 Console.Write("This is your first time running GGA. Configuring.");
                 foreach (string game in Globals.Lists.Games)
                 {
@@ -89,25 +107,22 @@ namespace SpawnedIn.GGA.Main
                     ini.INIWriteValue(ini_section, game, sourcepath);
                 }
                 Console.WriteLine(".Done! :)");
-                Console.ResetColor();
             }
             // READ FROM THE INI
             Dictionary<string, string> game_paths = Globals.Lists.GameBinaryPaths;
             Dictionary<string, int> game_path_leaves = Globals.Lists.GamePathLeaves;
-            Parallel.ForEach(Globals.Lists.Games, game =>
+            foreach (string game in Globals.Lists.Games)
             {
                 string stored_path = ini.INIReadValue(ini_section, game);
                 if (!Directory.Exists(stored_path))
                 {
                     Console.WriteLine("Finding {0}", game);
                     string path_to_find = game_paths[game];
-                    Parallel.ForEach(Globals.Paths.Drives, drive =>
+                    foreach (string drive in Globals.Paths.Drives)
                     {
-                        Parallel.ForEach(Helper.EnumerateFiles(drive, path_to_find, SearchOption.AllDirectories), fp =>
+                        foreach (string fp in Helper.EnumerateFiles(drive, path_to_find, SearchOption.AllDirectories))
                         {
-                            Console.ForegroundColor = ConsoleColor.Green;
                             Console.WriteLine("Found {0}", fp);
-                            Console.ResetColor();
                             int leafindex = game_path_leaves[game];
                             string mod_path = fp;
                             for (int i = 0; i < leafindex; ++i)
@@ -116,10 +131,10 @@ namespace SpawnedIn.GGA.Main
                             }
                             ini.INIWriteValue(ini_section, game, mod_path + @"\");
                             Console.WriteLine("Storing {0}", mod_path + @"\");
-                        });
-                    });
+                        }
+                    }
                 }
-            });
+            }
         }
 
         static void StartProcess(string classname)
@@ -150,7 +165,7 @@ namespace SpawnedIn.GGA.Main
                 Console.WriteLine("Processing {0}", proper);
                 Helper.BuildSourceDirectory(proper);
                 StartProcess(game);
-                Helper.PostCleanup(proper);
+                // Helper.PostCleanup(proper);
             }
             if (args.Contains("-min", StringComparer.OrdinalIgnoreCase))
             {
