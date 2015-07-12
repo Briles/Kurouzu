@@ -29,13 +29,14 @@ namespace SpawnedIn.GGA.Games
             string source_path = ini.INIReadValue("Game Paths", "Dota 2");
             // Get the source
             string[] vpks = {"heroes", @"heroes\selection", "miniheroes", "spellicons", "items"};
-            Parallel.ForEach(vpks, vpk =>
+            foreach(string vpk in vpks)
             {
                 var hlextract = new Process
                 {
-                    StartInfo = new ProcessStartInfo {
+                    StartInfo = new ProcessStartInfo
+                    {
                         FileName = "hlextract.exe",
-                        Arguments = String.Format(" -p \"{0}\" -d \"{1}\" -e \"{2}\"", Path.Combine(source_path, @"dota\pak01_dir.vpk"),Path.Combine(Globals.Paths.Assets, @"Source\Dota 2"), String.Format(@"root\resource\flash3\images\{0}", vpk)),
+                        Arguments = String.Format(" -p \"{0}\" -d \"{1}\" -e \"{2}\"", Path.Combine(source_path, @"dota\pak01_dir.vpk"), Path.Combine(Globals.Paths.Assets, @"Source\Dota 2"), String.Format(@"root\resource\flash3\images\{0}", vpk)),
                         WindowStyle = ProcessWindowStyle.Hidden,
                         UseShellExecute = false,
                         RedirectStandardOutput = true,
@@ -48,7 +49,7 @@ namespace SpawnedIn.GGA.Games
                     string line = hlextract.StandardOutput.ReadLine();
                     Console.WriteLine(line);
                 }
-            });
+            }
             // Copy the rest of the source assets
             // Copy jobs take the form { string output path, { string start path, bool recursion flag, string search pattern, string exclude pattern } }
             List<CopyJob> copyjobs = new List<CopyJob>
@@ -72,7 +73,7 @@ namespace SpawnedIn.GGA.Games
                 new ScalingJob(items, "*.png"),
                 new ScalingJob(spells, "*.png")
             };
-            Helper.BatchIMScale(scalingjobs);
+            // Helper.BatchIMScale(scalingjobs);
         }
     }
 }

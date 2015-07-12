@@ -29,7 +29,16 @@ namespace SpawnedIn.GGA.Defaults
 
         public static class Lists
         {
-            public static readonly string[] Games = {"Dawngate", "Dota 2", "Heroes of Newerth", "Heroes of the Storm", "League of Legends", "Smite", "StarCraft II", "Strife"};
+            public static readonly string[] Games = {
+                "Dawngate", 
+                "Dota 2", 
+                "Heroes of Newerth", 
+                "Heroes of the Storm", 
+                "League of Legends", 
+                "Smite", 
+                "StarCraft II", 
+                "Strife"
+            };
             public static readonly Dictionary<string, string> GameBinaryPaths = new Dictionary<string, string>
             {
                 { "Dawngate", "Dawngate.exe" },
@@ -44,33 +53,15 @@ namespace SpawnedIn.GGA.Defaults
             };
             public static readonly Dictionary<string, string> GameSourcePaths = new Dictionary<string, string>
             {
-                {
-                    "Dawngate", @"C:\Program Files (x86)\Electronic Arts\Dawngate\game\"
-                },
-                {
-                    "Dota 2", @"C:\Program Files (x86)\Steam\SteamApps\common\dota 2 beta\"
-                },
-                {
-                    "Hearthstone", @"C:\Program Files (x86)\Hearthstone\"
-                },
-                {
-                    "Heroes of Newerth", @"C:\Program Files (x86)\Heroes of Newerth\"
-                },
-                {
-                    "Heroes of the Storm", @"C:\Program Files (x86)\Heroes of the Storm\"
-                },
-                {
-                    "League of Legends", @"C:\Program Files (x86)\League of Legends\"
-                },
-                {
-                    "Smite", @"C:\Program Files (x86)\Hi-Rez Studios\HiRezGames\smite\"
-                },
-                {
-                    "StarCraft II", @"C:\Program Files (x86)\StarCraft II\"
-                },
-                {
-                    "Strife", @"C:\Program Files (x86)\Strife\"
-                }
+                {"Dawngate", @"C:\Program Files (x86)\Electronic Arts\Dawngate\game\"},
+                {"Dota 2", @"C:\Program Files (x86)\Steam\SteamApps\common\dota 2 beta\"},
+                {"Hearthstone", @"C:\Program Files (x86)\Hearthstone\"},
+                {"Heroes of Newerth", @"C:\Program Files (x86)\Heroes of Newerth\"},
+                {"Heroes of the Storm", @"C:\Program Files (x86)\Heroes of the Storm\"},
+                {"League of Legends", @"C:\Program Files (x86)\League of Legends\"},
+                {"Smite", @"C:\Program Files (x86)\Hi-Rez Studios\HiRezGames\smite\"},
+                {"StarCraft II", @"C:\Program Files (x86)\StarCraft II\"},
+                {"Strife", @"C:\Program Files (x86)\Steam\SteamApps\common\Strife\"}
             };
             public static readonly Dictionary<string, int> GamePathLeaves = new Dictionary<string, int>
             {

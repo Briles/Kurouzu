@@ -28,7 +28,7 @@ namespace SpawnedIn.GGA.Games
             string source_path = ini.INIReadValue("Game Paths", "Smite");
             // Get the source
             string[] upks = Directory.GetFiles(Path.Combine(source_path, @"BattleGame\CookedPC\GUI\Icons"), "*.upk", SearchOption.AllDirectories);
-            Parallel.ForEach(upks, upk =>
+            foreach(string upk in upks)
             {
                 var umodel = new Process
                 {
@@ -47,7 +47,7 @@ namespace SpawnedIn.GGA.Games
                     string line = umodel.StandardOutput.ReadLine();
                     Console.WriteLine(line);
                 }
-            });
+            }
             // Copy the rest of the source assets
             // Copy jobs take the form { string output path, { string start path, bool recursion flag, string search pattern, string exclude pattern } }
             List<CopyJob> copyjobs = new List<CopyJob>
@@ -57,7 +57,7 @@ namespace SpawnedIn.GGA.Games
                 new CopyJob(abilities, Path.Combine(Globals.Paths.Assets, @"Source\Smite\icons\abilitybanners"), true, "Icons_Ymir_GlacialStrike.tga", null),
                 new CopyJob(gods_portrait, Path.Combine(Globals.Paths.Assets, @"Source\Smite\GodSkins_Cards"), false, "*_Default_Card.tga", null),
                 new CopyJob(gods_square, Path.Combine(Globals.Paths.Assets, @"Source\Smite\GodSkins_Portraits_and_Icons"), true, "*_Default_Icon.tga", null),
-                new CopyJob(items, Path.Combine(Globals.Paths.Assets, @"Source\Smite\icons\items_delete"), true, "*.tga", null)
+                // new CopyJob(items, Path.Combine(Globals.Paths.Assets, @"Source\Smite\icons\items_delete"), true, "*.tga", null)
             };
             Helper.BatchFileCopy(copyjobs);
             // Rename all the things
@@ -74,7 +74,7 @@ namespace SpawnedIn.GGA.Games
                 new ScalingJob(gods_square, "*.tga", null),
                 new ScalingJob(items, "*.tga", null)
             };
-            Helper.BatchIMScale(scalingjobs);
+            // Helper.BatchIMScale(scalingjobs);
         }
     }
 }

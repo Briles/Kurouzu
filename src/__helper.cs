@@ -19,16 +19,18 @@ namespace SpawnedIn.GGA.Helpers
     {
         public static void BatchFileRename(string game)
         {
-            var ass = Assembly.GetExecutingAssembly();
-            string[] reses = ass.GetManifestResourceNames();
-            string[] csvs = reses.Where(r => r.EndsWith(".csv") && r.StartsWith(game)).ToArray();
+            // var ass = Assembly.GetExecutingAssembly();
+            // string[] reses = ass.GetManifestResourceNames();
+            // string[] csvs = reses.Where(r => r.EndsWith(".csv") && r.StartsWith(game)).ToArray();
+            string[] csvs = Directory.GetFiles(Path.Combine(Globals.Paths.Data, game), "*.csv", SearchOption.AllDirectories).ToArray();
             foreach (string csv in csvs)
             {
                 List<string> unused = new List<string>();
-                string directory = csv.Replace(game, "").Replace(".csv", "").Trim();
+                // string directory = csv.Replace(game, "").Replace(".csv", "").Trim();
+                string directory = Path.GetFileNameWithoutExtension(csv);
                 List<string> assets = new List<string>(Directory.GetFiles(Path.Combine(Globals.Paths.Assets, game, directory), "*", SearchOption.AllDirectories));
-                using(var s = System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(csv))
-                using(var re = new StreamReader(s))
+                // using(var s = System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(csv))
+                using(var re = new StreamReader(csv))
                 {
                     string l;
                     while ((l = re.ReadLine()) != null)

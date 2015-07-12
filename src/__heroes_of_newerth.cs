@@ -29,7 +29,7 @@ namespace SpawnedIn.GGA.Games
             string source_path = ini.INIReadValue("Game Paths", "Heroes of Newerth");
             // Get the source
             string[] vpks = {"heroes", @"heroes\selection", "miniheroes", "spellicons", "items"};
-            Parallel.ForEach(vpks, vpk =>
+            foreach(string vpk in vpks)
             {
                 var hlextract = new Process
                 {
@@ -48,7 +48,7 @@ namespace SpawnedIn.GGA.Games
                     string line = hlextract.StandardOutput.ReadLine();
                     Console.WriteLine(line);
                 }
-            });
+            }
             // Copy the rest of the source assets
             // Copy jobs take the form { string output path, { string start path, bool recursion flag, string search pattern, string exclude pattern } }
             List<CopyJob> copyjobs = new List<CopyJob>
@@ -72,7 +72,7 @@ namespace SpawnedIn.GGA.Games
                 new ScalingJob(items, "*.png"),
                 new ScalingJob(spells, "*.png")
             };
-            Helper.BatchIMScale(scalingjobs);
+            // Helper.BatchIMScale(scalingjobs);
         }
     }
 }

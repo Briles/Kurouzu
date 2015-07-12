@@ -33,7 +33,7 @@ namespace SpawnedIn.GGA.Games
             // Get the source
             string quickbms_snap = Path.Combine(Globals.Paths.Home, @"bin\quickbms_snap.txt");
             string[] snaps = Directory.GetFiles(Path.Combine(source_path, "data"), "*.snap", SearchOption.AllDirectories);
-            Parallel.ForEach(snaps, snap =>
+            foreach(string snap in snaps)
             {
                 var quickbms = new Process
                 {
@@ -52,7 +52,7 @@ namespace SpawnedIn.GGA.Games
                     string line = quickbms.StandardOutput.ReadLine();
                     Console.WriteLine(line);
                 }
-            });
+            }
             var postbms = new Process
             {
                 StartInfo = new ProcessStartInfo {
@@ -97,7 +97,7 @@ namespace SpawnedIn.GGA.Games
                 new ScalingJob(spells),
                 new ScalingJob(spiritstones)
             };
-            Helper.BatchIMScale(scalingjobs);
+            // Helper.BatchIMScale(scalingjobs);
         }
     }
 }
