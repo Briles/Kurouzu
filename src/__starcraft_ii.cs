@@ -17,47 +17,58 @@ namespace SpawnedIn.GGA.Games
     {
         public static void Process()
         {
-            string heroes_mini = @"StarCraft II\Heroes\Mini\";
-            string heroes_landscape = @"StarCraft II\Heroes\Landscape\";
-            string heroes_portrait = @"StarCraft II\Heroes\Portrait\";
-            string items = @"StarCraft II\Items\";
-            string spells = @"StarCraft II\Spells\";
-            string[] dirs = { heroes_mini, heroes_landscape, heroes_portrait, items, spells };
+            string units_portrait = @"StarCraft II\Units\Portrait\";
+            string units_square = @"StarCraft II\Units\Square\";
+            string buildings = @"StarCraft II\Buildings\";
+            string abilities = @"StarCraft II\Abilities\";
+            string upgrades = @"StarCraft II\Upgrades\";
+            string ui = @"StarCraft II\UI\";
+            string[] dirs = { units_portrait, units_square, buildings, abilities, upgrades, ui };
             Helper.BuildDirectoryTree(dirs);
             // Get the path of the source
             INIFile ini = new INIFile(Globals.Paths.Conf);
             string source_path = ini.INIReadValue("Game Paths", "StarCraft II");
             // Get the source
-            string[] vpks = {"heroes", @"heroes\selection", "miniheroes", "spellicons", "items"};
-            foreach(string vpk in vpks)
+            string[] filters = { "*portrait*static.dds", "*-unit-*.dds", "*-building-*.dds", "*-ability-*.dds", "*-armor-*.dds", "*-upgrade-*.dds", "*icon-*nobg.dds" };
+            string[] mpqs = Directory.GetFiles(Path.Combine(source_path, @"Mods"), "Base.SC2Assets", SearchOption.AllDirectories);
+            foreach(string mpq in mpqs)
             {
-                var hlextract = new Process
+                string leaf = (Directory.GetParent(mpq).Name).Replace(".SC2Mod", "");
+                string dest = Path.Combine(Globals.Paths.Assets,"Source","StarCraft II",leaf);
+                foreach (string filter in filters)
                 {
-                    StartInfo = new ProcessStartInfo {
-                        FileName = "hlextract.exe",
-                        Arguments = String.Format(" -p \"{0}\" -d \"{1}\" -e \"{2}\"", Path.Combine(source_path, @"dota\pak01_dir.vpk"),Path.Combine(Globals.Paths.Assets, @"Source\StarCraft II"), String.Format(@"root\resource\flash3\images\{0}", vpk)),
-                        WindowStyle = ProcessWindowStyle.Hidden,
-                        UseShellExecute = false,
-                        RedirectStandardOutput = true,
-                        CreateNoWindow = true
+                    var mpqeditor = new Process
+                    {
+                        StartInfo = new ProcessStartInfo
+                        {
+                            FileName = "MPQEditor.exe",
+                            Arguments = String.Format(" e \"{0}\" \"{1}\" \"{2}\" /fp", mpq, filter, dest),
+                            WindowStyle = ProcessWindowStyle.Hidden,
+                            UseShellExecute = false,
+                            RedirectStandardOutput = true,
+                            CreateNoWindow = true
+                        }
+                    };
+                    mpqeditor.Start();
+                    while (!mpqeditor.StandardOutput.EndOfStream)
+                    {
+                        string line = mpqeditor.StandardOutput.ReadLine();
+                        Console.WriteLine(line);
                     }
-                };
-                hlextract.Start();
-                while (!hlextract.StandardOutput.EndOfStream)
-                {
-                    string line = hlextract.StandardOutput.ReadLine();
-                    Console.WriteLine(line);
                 }
             }
             // Copy the rest of the source assets
             // Copy jobs take the form { string output path, { string start path, bool recursion flag, string search pattern, string exclude pattern } }
             List<CopyJob> copyjobs = new List<CopyJob>
             {
-                new CopyJob(heroes_portrait, Path.Combine(Globals.Paths.Assets, @"Source\StarCraft II\selection"), true, "npc_dota_hero_*.png", null),
-                new CopyJob(heroes_landscape, Path.Combine(Globals.Paths.Assets, @"Source\StarCraft II\heroes"), false, "*.png", null),
-                new CopyJob(heroes_mini, Path.Combine(Globals.Paths.Assets, @"Source\StarCraft II\miniheroes"), true, "*.png", null),
-                new CopyJob(spells, Path.Combine(Globals.Paths.Assets, @"Source\StarCraft II\spellicons"), true, "*.png", null),
-                new CopyJob(items, Path.Combine(Globals.Paths.Assets, @"Source\StarCraft II\items"), true, "*.png", null)
+                new CopyJob(units_portrait, Path.Combine(Globals.Paths.Assets, @"Source\StarCraft II"), true, "*portrait_static.dds", null),
+                new CopyJob(units_square, Path.Combine(Globals.Paths.Assets, @"Source\StarCraft II"), true, "btn-unit-*.dds", null),
+                new CopyJob(buildings, Path.Combine(Globals.Paths.Assets, @"Source\StarCraft II"), true, "btn-building-*.dds", null),
+                new CopyJob(abilities, Path.Combine(Globals.Paths.Assets, @"Source\StarCraft II"), true, "btn-ability-*.dds", null),
+                new CopyJob(abilities, Path.Combine(Globals.Paths.Assets, @"Source\StarCraft II"), true, "btn-armor-*.dds", null),
+                new CopyJob(upgrades, Path.Combine(Globals.Paths.Assets, @"Source\StarCraft II"), true, "btn-upgrade-*.dds", null),
+                new CopyJob(ui, Path.Combine(Globals.Paths.Assets, @"Source\StarCraft II"), true, "icon-*-nobg.dds", null),
+                new CopyJob(ui, Path.Combine(Globals.Paths.Assets, @"Source\StarCraft II"), true, "icon-supply*_nobg.dds", null)
             };
             Helper.BatchFileCopy(copyjobs);
             // Rename all the things
@@ -66,11 +77,12 @@ namespace SpawnedIn.GGA.Games
             // Scaling jobs take the form { string start path, string search pattern, string exclude pattern }
             List<ScalingJob> scalingjobs = new List<ScalingJob>
             {
-                new ScalingJob(heroes_landscape, "*.png"),
-                new ScalingJob(heroes_mini, "*.png"),
-                new ScalingJob(heroes_portrait, "*.png"),
-                new ScalingJob(items, "*.png"),
-                new ScalingJob(spells, "*.png")
+                new ScalingJob(units_portrait, "*.dds"),
+                new ScalingJob(units_square, "*.dds"),
+                new ScalingJob(buildings, "*.dds"),
+                new ScalingJob(abilities, "*.dds"),
+                new ScalingJob(upgrades, "*.dds"),
+                new ScalingJob(ui, "*.dds")
             };
             // Helper.BatchIMScale(scalingjobs);
         }

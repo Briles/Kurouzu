@@ -6,6 +6,7 @@
 *.sublime-workspace
 
 conf.ini
+build.ps1
 
 /ignore/
 Graphics/Logo/*.ai

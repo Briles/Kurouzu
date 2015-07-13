@@ -30,14 +30,14 @@ namespace SpawnedIn.GGA.Defaults
         public static class Lists
         {
             public static readonly string[] Games = {
-                "Dawngate", 
+                // "Dawngate", 
                 "Dota 2", 
-                "Heroes of Newerth", 
-                "Heroes of the Storm", 
+                // "Heroes of Newerth", 
+                // "Heroes of the Storm", 
                 "League of Legends", 
                 "Smite", 
                 "StarCraft II", 
-                "Strife"
+                // "Strife"
             };
             public static readonly Dictionary<string, string> GameBinaryPaths = new Dictionary<string, string>
             {

@@ -7,29 +7,17 @@ Kurouzu is a Windows Command Line utility for extracting, renaming, and scaling 
 ### Supported Games
 
 * [Counter-Strike: Global Offensive (planned)](http://www.counter-strike.net/ "Counter-Strike: Global Offensive")
-* Dawngate (No longer developed)
+* Dawngate (Legacy, No longer developed)
 * [Dota 2](http://www.dota2.com/ "Dota 2")
-* [Hearthstone (planned](http://www.battle.net/hearthstone/ "Hearthstone")
-* [Heroes of Newerth (in progress](http://www.heroesofnewerth.com/?home "Heroes of Newerth")
+* [Hearthstone (planned)](http://www.battle.net/hearthstone/ "Hearthstone")
+* [Heroes of Newerth (in progress)](http://www.heroesofnewerth.com/?home "Heroes of Newerth")
 * [Heroes of the Storm (in progress)](http://www.battle.net/heroes/ "Heroes of the Storm")
 * [League of Legends](http://www.leagueoflegends.com/ "League of Legends")
 * [Smite](http://www.hirezstudios.com/smite "Smite")
-* [StarCraft II (in progress)](http://www.battle.net/sc2/ "StarCraft II")
+* [StarCraft II](http://www.battle.net/sc2/ "StarCraft II")
 * [Strife (in progress)](https://strife.com/ "Strife")
 * [Unreal Tournament 4 (planned)](https://www.unrealtournament.com/ "Unreal Tournament 4")
 
 ### [Contributing](https://github.com/Briles/Kurouzu/wiki/Contributing)
 
 For contributing guidelines and instructions, please see the [wiki page](https://github.com/Briles/Kurouzu/wiki/Contributing).
-
-Renaming Standard:
-Anything in `[]` is used when needed. White-Space in names is replaced by `-`
-
-    // Champions, Gods, Heroes, Shapers (and their summons)
-    name [skin] [summon]
-
-    // Abilities, Spells
-    owner [skin] [summon] hotkey [toggle#] [effects]
-
-    // Items
-    name [skin] [summon] [toggle#] [effects]

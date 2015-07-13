@@ -17,47 +17,44 @@ namespace SpawnedIn.GGA.Games
     {
         public static void Process()
         {
-            string heroes_mini = @"Heroes of the Storm\Heroes\Mini\";
-            string heroes_landscape = @"Heroes of the Storm\Heroes\Landscape\";
-            string heroes_portrait = @"Heroes of the Storm\Heroes\Portrait\";
-            string items = @"Heroes of the Storm\Items\";
-            string spells = @"Heroes of the Storm\Spells\";
-            string[] dirs = { heroes_mini, heroes_landscape, heroes_portrait, items, spells };
+            string units_portrait = @"Heroes of the Storm\Heroes\Portrait\";
+            string units_landscape = @"Heroes of the Storm\Heroes\Portrait\";
+            string units_round = @"Heroes of the Storm\Heroes\Round\";
+            string units_banner = @"Heroes of the Storm\Heroes\Banner\";
+            string talents = @"Heroes of the Storm\Talents\";
+            string ui = @"Heroes of the Storm\UI\";
+            string[] dirs = { units_portrait, units_landscape, units_round, units_banner, talents, ui };
             Helper.BuildDirectoryTree(dirs);
             // Get the path of the source
             INIFile ini = new INIFile(Globals.Paths.Conf);
             string source_path = ini.INIReadValue("Game Paths", "Heroes of the Storm");
             // Get the source
-            string[] vpks = {"heroes", @"heroes\selection", "miniheroes", "spellicons", "items"};
-            foreach(string vpk in vpks)
+            // string[] filters = { "*portrait*static.dds", "*-unit-*.dds", "*-building-*.dds", "*-ability-*.dds", "*-armor-*.dds", "*-upgrade-*.dds", "*icon-*nobg.dds" };
+            string hotsdata = Path.Combine(source_path, @"HeroesData");
+            string dest = Path.Combine(Globals.Paths.Assets, "Source", "Heroes of the Storm");
+            var cascview = new Process
             {
-                var hlextract = new Process
+                StartInfo = new ProcessStartInfo
                 {
-                    StartInfo = new ProcessStartInfo {
-                        FileName = "hlextract.exe",
-                        Arguments = String.Format(" -p \"{0}\" -d \"{1}\" -e \"{2}\"", Path.Combine(source_path, @"dota\pak01_dir.vpk"),Path.Combine(Globals.Paths.Assets, @"Source\Heroes of the Storm"), String.Format(@"root\resource\flash3\images\{0}", vpk)),
-                        WindowStyle = ProcessWindowStyle.Hidden,
-                        UseShellExecute = false,
-                        RedirectStandardOutput = true,
-                        CreateNoWindow = true
-                    }
-                };
-                hlextract.Start();
-                while (!hlextract.StandardOutput.EndOfStream)
-                {
-                    string line = hlextract.StandardOutput.ReadLine();
-                    Console.WriteLine(line);
+                    FileName = "CascView.exe",
+                    Arguments = String.Format(" \"{0}\" \"*.dds\" \"{1}\" /fp", hotsdata, dest),
+                    WindowStyle = ProcessWindowStyle.Hidden,
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    CreateNoWindow = true
                 }
+            };
+            cascview.Start();
+            while (!cascview.StandardOutput.EndOfStream)
+            {
+                string line = cascview.StandardOutput.ReadLine();
+                Console.WriteLine(line);
             }
             // Copy the rest of the source assets
             // Copy jobs take the form { string output path, { string start path, bool recursion flag, string search pattern, string exclude pattern } }
             List<CopyJob> copyjobs = new List<CopyJob>
             {
-                new CopyJob(heroes_portrait, Path.Combine(Globals.Paths.Assets, @"Source\Heroes of the Storm\selection"), true, "npc_dota_hero_*.png", null),
-                new CopyJob(heroes_landscape, Path.Combine(Globals.Paths.Assets, @"Source\Heroes of the Storm\heroes"), false, "*.png", null),
-                new CopyJob(heroes_mini, Path.Combine(Globals.Paths.Assets, @"Source\Heroes of the Storm\miniheroes"), true, "*.png", null),
-                new CopyJob(spells, Path.Combine(Globals.Paths.Assets, @"Source\Heroes of the Storm\spellicons"), true, "*.png", null),
-                new CopyJob(items, Path.Combine(Globals.Paths.Assets, @"Source\Heroes of the Storm\items"), true, "*.png", null)
+                new CopyJob(units_portrait, Path.Combine(Globals.Paths.Assets, @"Source\Heroes of the Storm"), true, "*portrait_static.dds", null)
             };
             Helper.BatchFileCopy(copyjobs);
             // Rename all the things
@@ -66,11 +63,7 @@ namespace SpawnedIn.GGA.Games
             // Scaling jobs take the form { string start path, string search pattern, string exclude pattern }
             List<ScalingJob> scalingjobs = new List<ScalingJob>
             {
-                new ScalingJob(heroes_landscape, "*.png"),
-                new ScalingJob(heroes_mini, "*.png"),
-                new ScalingJob(heroes_portrait, "*.png"),
-                new ScalingJob(items, "*.png"),
-                new ScalingJob(spells, "*.png")
+                new ScalingJob(units_portrait, "*.dds")
             };
             // Helper.BatchIMScale(scalingjobs);
         }
