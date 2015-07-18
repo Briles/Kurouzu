@@ -84,6 +84,10 @@
     <ApplicationIcon>Graphics\icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="CommandLine, Version=2.0.85.0, Culture=neutral, PublicKeyToken=de6f01bd326f8c32, processorArchitecture=MSIL">
+      <HintPath>packages\CommandLineParser.2.0.85-alpha\lib\net45\CommandLine.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Magick.NET-AnyCPU, Version=7.0.0.0, Culture=neutral, PublicKeyToken=2004825badfa91ec, processorArchitecture=MSIL">
       <HintPath>packages\Magick.NET-Q16-AnyCPU.7.0.0.0015\lib\net40-client\Magick.NET-AnyCPU.dll</HintPath>
       <Private>True</Private>
@@ -207,8 +211,6 @@
     <None Include=".git\refs\heads\master" />
     <None Include=".git\refs\remotes\origin\master" />
     <None Include="app.config" />
-    <None Include="build.ps1" />
-    <None Include="conf.ini" />
     <None Include="data\Dawngate\Abilities.csv" />
     <None Include="data\Dawngate\Items.csv" />
     <None Include="data\Dawngate\Shapers.csv" />
@@ -236,10 +238,7 @@
     <None Include="data\StarCraft II\Units.csv" />
     <None Include="data\StarCraft II\Upgrades.csv" />
     <None Include="Graphics\Logo\logo.ai" />
-    <None Include="kurouzu.sublime-project" />
-    <None Include="kurouzu.sublime-workspace" />
     <None Include="packages.config" />
-    <None Include="readme.md" />
   </ItemGroup>
   <ItemGroup>
     <Content Include=".git\ms-persist.xml" />
@@ -249,6 +248,8 @@
     <Content Include="src\quickbms_snap.txt" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="src\options.cs" />
     <Compile Include="src\gga.cs" />
     <Compile Include="src\helper.cs" />
     <Compile Include="src\ini.cs" />

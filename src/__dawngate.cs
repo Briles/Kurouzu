@@ -9,10 +9,10 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 //
 using Blazinix.INI;
-using SpawnedIn.GGA.Helpers;
-using SpawnedIn.GGA.Defaults;
+using Kurouzu.Helpers;
+using Kurouzu.Defaults;
 
-namespace SpawnedIn.GGA.Games
+namespace Kurouzu.Games
 {
     public class Dawngate
     {

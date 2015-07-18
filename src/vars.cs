@@ -4,7 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Collections.Generic;
 //
-namespace SpawnedIn.GGA.Defaults
+namespace Kurouzu.Defaults
 {
 
     public class Game

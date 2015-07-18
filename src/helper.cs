@@ -3,17 +3,19 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Drawing;
+using Microsoft.Win32;
 using System.Threading;
 using System.Reflection;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Security.Permissions;
 using System.Text.RegularExpressions;
 //
 using Blazinix.INI;
-using SpawnedIn.GGA.Defaults;
+using Kurouzu.Defaults;
 
-namespace SpawnedIn.GGA.Helpers
+namespace Kurouzu.Helpers
 {
     public static class Helper
     {
@@ -80,40 +82,47 @@ namespace SpawnedIn.GGA.Helpers
             }
         }
 
-        public static void VerifyINI()
+        public static void InitINI()
         {
-            // GET PATHS FROM THE INI
-            const string ini_section = "Game Paths";
-            INIFile ini = new INIFile(Globals.Paths.Conf);
+            Console.Write("This is your first time running Kurouzu. Configuring.");
+            const string INISection = "Game Paths";
+            INIFile INI = new INIFile(Globals.Paths.Conf);
+            foreach (var Game in Globals.Games)
+            {
+                INI.INIWriteValue(INISection, Game.Title, Game.Source);
+                foreach (KeyValuePair<string, string> Dimension in Game.Dimensions)
+                {
+                    INI.INIWriteValue(Game.Title, Dimension.Key, Dimension.Value);
+                }
+            }
+            Console.WriteLine(".Done! :)");
+        }
+
+        public static void ValidateINI(string gameTitle)
+        {
+            const string INISection = "Game Paths";
+            Game game = Game.GetGamebyProp(gameTitle);
+            INIFile INI = new INIFile(Globals.Paths.Conf);
             if (!File.Exists(Globals.Paths.Conf))
             {
-                Console.Write("This is your first time running GGA. Configuring.");
-                foreach (var game in Globals.Games)
-                {
-                    ini.INIWriteValue(ini_section, game.Title, game.Source);
-                }
-                Console.WriteLine(".Done! :)");
+                InitINI();
             }
-            // READ FROM THE INI
-            foreach (var game in Globals.Games)
+            if (!Directory.Exists(INI.INIReadValue(INISection, game.Title)))
             {
-                string stored_path = ini.INIReadValue(ini_section, game.Title);
-                if (!Directory.Exists(stored_path))
+                Console.WriteLine("Finding {0}", game.Title);
+                foreach (string Drive in Globals.Paths.Drives)
                 {
-                    Console.WriteLine("Finding {0}", game.Title);
-                    foreach (string drive in Globals.Paths.Drives)
+
+                    foreach (string MatchedFile in Helper.EnumerateFiles(Drive, game.Binary, SearchOption.AllDirectories))
                     {
-                        foreach (string fp in Helper.EnumerateFiles(drive, game.Binary, SearchOption.AllDirectories))
+                        Console.WriteLine("Found {0}", MatchedFile);
+                        string LeafPath = MatchedFile;
+                        for (int i = 0; i < game.Leaf; ++i)
                         {
-                            Console.WriteLine("Found {0}", fp);
-                            string mod_path = fp;
-                            for (int i = 0; i < game.Leaf; ++i)
-                            {
-                                mod_path = Directory.GetParent(mod_path).ToString();
-                            }
-                            ini.INIWriteValue(ini_section, game.Title, mod_path + @"\");
-                            Console.WriteLine("Storing {0}", mod_path + @"\");
+                            LeafPath = Directory.GetParent(LeafPath).ToString();
                         }
+                        INI.INIWriteValue(INISection, game.Title, LeafPath + @"\");
+                        Console.WriteLine("Storing {0}", LeafPath + @"\");
                     }
                 }
             }
@@ -460,7 +469,7 @@ namespace SpawnedIn.GGA.Helpers
 
         public static void BatchFileCopy(List<CopyJob> copyjobs)
         {
-            foreach(SpawnedIn.GGA.Helpers.CopyJob job in copyjobs)
+            foreach(Kurouzu.Helpers.CopyJob job in copyjobs)
             {
                 SearchOption recursion = SearchOption.TopDirectoryOnly;
                 if (job.Recursion == true)

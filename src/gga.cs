@@ -1,57 +1,60 @@
 using System;
 using System.IO;
 using System.Linq;
+using CommandLine;
 using System.Threading;
 using System.Reflection;
+using CommandLine.Text;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 //
-using Blazinix.INI;
-using SpawnedIn.GGA.Games;
-using SpawnedIn.GGA.Helpers;
-using SpawnedIn.GGA.Defaults;
+using Kurouzu.Games;
+using Kurouzu.Args;
+using Kurouzu.Helpers;
+using Kurouzu.Defaults;
 
-namespace SpawnedIn.GGA.Main
+namespace Kurouzu.Main
 {
 
     class GetGameAssets
     {
 
-        static void StartProcess(string classname)
+        static void StartProcess(string className)
         {
-            Type t = Type.GetType("SpawnedIn.GGA.Games." + classname);
+            Type t = Type.GetType("Kurouzu.Games." + className);
             MethodInfo m = t.GetMethod("Process");
             m.Invoke(null, null);
         }
 
         static void Main(string[] args)
         {
-            Console.WriteLine("\nRunning in {0} from {1}\n", Globals.Paths.Work, Globals.Paths.Home);
-            Helper.VerifyINI();
-            string[] games;
-            if (args.Length > 0)
-            {
-                games = args[0].Split(',');
-            }
-            else
-            {
-                games = Globals.Games.Select(x => x.Title).ToArray();
-            }
-            foreach (string input_game in games)
-            {
-                string proper = Game.GetGamebyProp(input_game.Trim()).Title;
-                string game = (proper).Replace(" ", "");
-                Helper.PreCleanup(proper);
-                Console.WriteLine("Processing {0}", proper);
-                Helper.BuildSourceDirectory(proper);
-                StartProcess(game);
-                Helper.PostCleanup(proper);
-            }
-            if (args.Contains("-min", StringComparer.OrdinalIgnoreCase))
-            {
-                // Minify
-                Helper.MinifyPNG();
-            }
+            var result = CommandLine.Parser.Default.ParseArguments<Options>(args);
+            var exitCode = result.Return(
+                options =>
+                {
+                    if (options.InputGame != null)
+                    {
+                        Console.WriteLine("\nRunning in {0} from {1}\n", Globals.Paths.Work, Globals.Paths.Home);
+                        string proper = Game.GetGamebyProp(options.InputGame.Trim()).Title;
+                        string game = (proper).Replace(" ", "");
+                        Helper.ValidateINI(proper);
+                        // Helper.PreCleanup(proper);
+                        Console.WriteLine("Processing {0}", proper);
+                        // Helper.BuildSourceDirectory(proper);
+                        // StartProcess(game);
+                        // Helper.PostCleanup(proper);
+                        if (options.Minification == true)
+                        {
+                            // Minify
+                            // Helper.MinifyPNG();
+                        }
+                    }
+                    return 0;
+                },
+                errors =>
+                {
+                    return 1;
+                });
         }
     }
 }
