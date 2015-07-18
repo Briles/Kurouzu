@@ -93,10 +93,6 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="PowerArgs, Version=2.6.0.1, Culture=neutral, PublicKeyToken=26a276264bbd55b8, processorArchitecture=MSIL">
-      <HintPath>packages\PowerArgs.2.6.0.1\lib\net40\PowerArgs.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
@@ -253,18 +249,19 @@
     <Content Include="src\quickbms_snap.txt" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="src\gga.cs" />
+    <Compile Include="src\helper.cs" />
+    <Compile Include="src\ini.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="src\gga.cs" />
+    <Compile Include="src\vars.cs" />
     <Compile Include="src\__dawngate.cs" />
     <Compile Include="src\__dota_2.cs" />
-    <Compile Include="src\__helper.cs" />
     <Compile Include="src\__heroes_of_newerth.cs" />
     <Compile Include="src\__heroes_of_the_storm.cs" />
-    <Compile Include="src\__ini.cs" />
     <Compile Include="src\__league_of_legends.cs" />
     <Compile Include="src\__smite.cs" />
     <Compile Include="src\__starcraft_ii.cs" />

@@ -1,4 +1,3 @@
-# Kurouzu. Get and manipulate game images.
 ![Kurouzu Logo](Graphics/Logo/logo.png "Kurouzu Logo")
 
 Kurouzu is a Windows Command Line utility for extracting, renaming, and scaling image assets from popular eSports Games.

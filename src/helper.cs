@@ -19,17 +19,12 @@ namespace SpawnedIn.GGA.Helpers
     {
         public static void BatchFileRename(string game)
         {
-            // var ass = Assembly.GetExecutingAssembly();
-            // string[] reses = ass.GetManifestResourceNames();
-            // string[] csvs = reses.Where(r => r.EndsWith(".csv") && r.StartsWith(game)).ToArray();
             string[] csvs = Directory.GetFiles(Path.Combine(Globals.Paths.Data, game), "*.csv", SearchOption.AllDirectories).ToArray();
             foreach (string csv in csvs)
             {
                 List<string> unused = new List<string>();
-                // string directory = csv.Replace(game, "").Replace(".csv", "").Trim();
                 string directory = Path.GetFileNameWithoutExtension(csv);
                 List<string> assets = new List<string>(Directory.GetFiles(Path.Combine(Globals.Paths.Assets, game, directory), "*", SearchOption.AllDirectories));
-                // using(var s = System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(csv))
                 using(var re = new StreamReader(csv))
                 {
                     string l;
@@ -85,12 +80,51 @@ namespace SpawnedIn.GGA.Helpers
             }
         }
 
+        public static void VerifyINI()
+        {
+            // GET PATHS FROM THE INI
+            const string ini_section = "Game Paths";
+            INIFile ini = new INIFile(Globals.Paths.Conf);
+            if (!File.Exists(Globals.Paths.Conf))
+            {
+                Console.Write("This is your first time running GGA. Configuring.");
+                foreach (var game in Globals.Games)
+                {
+                    ini.INIWriteValue(ini_section, game.Title, game.Source);
+                }
+                Console.WriteLine(".Done! :)");
+            }
+            // READ FROM THE INI
+            foreach (var game in Globals.Games)
+            {
+                string stored_path = ini.INIReadValue(ini_section, game.Title);
+                if (!Directory.Exists(stored_path))
+                {
+                    Console.WriteLine("Finding {0}", game.Title);
+                    foreach (string drive in Globals.Paths.Drives)
+                    {
+                        foreach (string fp in Helper.EnumerateFiles(drive, game.Binary, SearchOption.AllDirectories))
+                        {
+                            Console.WriteLine("Found {0}", fp);
+                            string mod_path = fp;
+                            for (int i = 0; i < game.Leaf; ++i)
+                            {
+                                mod_path = Directory.GetParent(mod_path).ToString();
+                            }
+                            ini.INIWriteValue(ini_section, game.Title, mod_path + @"\");
+                            Console.WriteLine("Storing {0}", mod_path + @"\");
+                        }
+                    }
+                }
+            }
+        }
+
         public static void MinifyPNG()
         {
             int num = 0;
             string[] pngs = Directory.GetFiles(Globals.Paths.Assets, "*.png", SearchOption.AllDirectories);
             int count = pngs.Length;
-            Parallel.ForEach(pngs, png =>
+            foreach(string png in pngs)
             {
                 // Set up the processes
                 var pngout = new Process
@@ -131,7 +165,7 @@ namespace SpawnedIn.GGA.Helpers
                 pngout.Start();
                 truepng.Start();
                 deflopt.Start();
-            });
+            }
         }
 
         public static void PostCleanup(string game)
@@ -141,7 +175,7 @@ namespace SpawnedIn.GGA.Helpers
             {
                 List<string> sources = new List<string>(Directory.GetDirectories(Path.Combine(Globals.Paths.Assets, game), "Source", SearchOption.AllDirectories));
                 sources.AddRange(Directory.GetDirectories(Path.Combine(Globals.Paths.Assets, "Source"), game, SearchOption.AllDirectories));
-                Parallel.ForEach(sources, source =>
+                foreach(string source in sources)
                 {
                     if (Directory.Exists(source))
                     {
@@ -155,7 +189,7 @@ namespace SpawnedIn.GGA.Helpers
                             Console.WriteLine(ex);
                         }
                     }
-                });
+                }
             }
         }
 
