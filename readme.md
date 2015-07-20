@@ -19,6 +19,13 @@ Kurouzu is a Windows Command Line utility for extracting, renaming, and scaling 
 
 ### Dependencies
 
+For Scaling:
+* [ImageMagick 7+](http://www.imagemagick.org/download/binaries/ "ImageMagick")
+For minification:
+* [PNGOUT](http://advsys.net/ken/utils.htm "PNGOUT")
+* [DeflOpt](https://chocolatey.org/packages/DeflOpt "DeflOpt")
+* [TruePNG](http://x128.ho.ua/pngutils.html "TruePNG")
+
 The following need to be on your path for Kurouzu to work. Kurouzu only requires dependencies for the games you want to process.
 
 * Dawngate: [QuickBMS](http://aluigi.altervista.org/quickbms.htm/ "QuickBMS")

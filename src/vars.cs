@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Collections.Generic;
 //
+using Kurouzu.Args;
 namespace Kurouzu.Defaults
 {
 
@@ -17,7 +18,7 @@ namespace Kurouzu.Defaults
 
         public static Game GetGamebyProp(string title)
         {
-            return Globals.Games.First(item => item.Title == title);
+            return Globals.Games.First(item => string.Equals(item.Title, title, StringComparison.OrdinalIgnoreCase));
         }
     }
 

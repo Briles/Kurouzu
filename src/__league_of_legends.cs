@@ -82,7 +82,7 @@ namespace Kurouzu.Games
                 new ScalingJob(masteries, "*.png"),
                 new ScalingJob(runes, "*.png")
             };
-            // Helper.BatchIMScale(scalingjobs);
+            Helper.BatchIMScale(scalingjobs);
         }
     }
 }

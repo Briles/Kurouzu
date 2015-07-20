@@ -1,6 +1,5 @@
 using System;
 using System.IO;
-using ImageMagick;
 using System.Linq;
 using System.Drawing;
 using System.Diagnostics;
@@ -9,6 +8,7 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 //
 using Blazinix.INI;
+using Kurouzu.Args;
 using Kurouzu.Defaults;
 
 namespace Kurouzu.Helpers
@@ -20,7 +20,7 @@ namespace Kurouzu.Helpers
         public static void BatchFileRename(string game)
         {
             string[] csvs = Directory.GetFiles(Path.Combine(Globals.Paths.Data, game), "*.csv", SearchOption.AllDirectories).ToArray();
-            foreach (string csv in csvs)
+            Parallel.ForEach(csvs, csv =>
             {
                 List<string> unused = new List<string>();
                 string directory = Path.GetFileNameWithoutExtension(csv);
@@ -77,7 +77,7 @@ namespace Kurouzu.Helpers
                         File.AppendAllText(unused_log, unused_str, System.Text.Encoding.UTF8);
                     }
                 }
-            }
+            });
         }
 
         //
@@ -87,14 +87,14 @@ namespace Kurouzu.Helpers
             Console.Write("This is your first time running Kurouzu. Configuring.");
             const string INISection = "Game Paths";
             INIFile INI = new INIFile(Globals.Paths.Conf);
-            foreach (var Game in Globals.Games)
+            Parallel.ForEach(Globals.Games, Game =>
             {
                 INI.INIWriteValue(INISection, Game.Title, Game.Source);
                 foreach (KeyValuePair<string, string> Dimension in Game.Dimensions)
                 {
                     INI.INIWriteValue(Game.Title, Dimension.Key, Dimension.Value);
                 }
-            }
+            });
             Console.WriteLine(".Done! :)");
         }
 
@@ -114,8 +114,7 @@ namespace Kurouzu.Helpers
                 Console.WriteLine("Finding {0}", game.Title);
                 foreach (string Drive in Globals.Paths.Drives)
                 {
-
-                    foreach (string MatchedFile in Helper.EnumerateFiles(Drive, game.Binary, SearchOption.AllDirectories))
+                    Parallel.ForEach(Helper.EnumerateFiles(Drive, game.Binary, SearchOption.AllDirectories), MatchedFile =>
                     {
                         Console.WriteLine("Found {0}", MatchedFile);
                         string LeafPath = MatchedFile;
@@ -125,7 +124,7 @@ namespace Kurouzu.Helpers
                         }
                         INI.INIWriteValue(INISection, game.Title, LeafPath + @"\");
                         Console.WriteLine("Storing {0}", LeafPath + @"\");
-                    }
+                    });
                 }
             }
         }
@@ -190,7 +189,7 @@ namespace Kurouzu.Helpers
             {
                 List<string> sources = new List<string>(Directory.GetDirectories(Path.Combine(Globals.Paths.Assets, game), "Source", SearchOption.AllDirectories));
                 sources.AddRange(Directory.GetDirectories(Path.Combine(Globals.Paths.Assets, "Source"), game, SearchOption.AllDirectories));
-                foreach(string source in sources)
+                Parallel.ForEach(sources, source =>
                 {
                     if (Directory.Exists(source))
                     {
@@ -204,7 +203,7 @@ namespace Kurouzu.Helpers
                             Console.WriteLine(ex);
                         }
                     }
-                }
+                });
             }
         }
 
@@ -212,144 +211,153 @@ namespace Kurouzu.Helpers
         //
         public static void BatchIMScale(List<ScalingJob> scalingjobs)
         {
-            foreach (var job in scalingjobs)
+            var options = new Options();
+            if (CommandLine.Parser.Default.ParseArgumentsStrict(Globals.Paths.Args, options))
             {
-                string[] info = (job.Path).Split('\\');
-                string game = info[0];
-                string category = info[1];
-                if (info.Length > 3)
+                if (options.Scale == true)
                 {
-                    category += @"\" + info[2];
-                }
-                // Get the images to scale
-                string[] images;
-                string startpath = Path.Combine(Globals.Paths.Assets, job.Path, "Source");
-                if (String.IsNullOrEmpty(job.ExcludePattern))
-                {
-                    images = Directory.GetFiles(startpath, job.SearchPattern, SearchOption.AllDirectories);
-                }
-                else
-                {
-                    string excludepattern = job.ExcludePattern;
-                    Regex r = new Regex(string.Format("^{0}$",excludepattern.Replace("*",".*")), RegexOptions.IgnoreCase);
-                    images = (Directory.GetFiles(startpath, job.SearchPattern, SearchOption.AllDirectories).Where(f => !r.IsMatch(Path.GetFileName(f)))).ToArray();
-                }
-                //Get the desired image sizes
-                if (File.Exists(Globals.Paths.Conf))
-                {
-                    string[] sizes;
-                    INIFile ini = new INIFile(Globals.Paths.Conf);
-                    sizes = (ini.INIReadValue(game, category).Split(','));
-                    foreach(string size in sizes)
+                    foreach (var job in scalingjobs)
                     {
-                        //Create a destination directory
-                        string dWidth = size.Split('x')[0];
-                        Directory.CreateDirectory(Path.Combine(Globals.Paths.Assets, job.Path, dWidth));
-                        foreach(string image in images)
+                        string[] info = (job.Path).Split('\\');
+                        string game = info[0];
+                        string category = info[1];
+                        if (info.Length > 3)
                         {
-                            // Get the extension so we only have to use IM identify when necessary
-                            string ext = Path.GetExtension(image);
-                            string dimensions = null;
-                            if (ext == ".dds" || ext == ".tga")
+                            category += @"\" + info[2];
+                        }
+                        // Get the images to scale
+                        string[] images;
+                        string startpath = Path.Combine(Globals.Paths.Assets, job.Path, "Source");
+                        if (String.IsNullOrEmpty(job.ExcludePattern))
+                        {
+                            images = Directory.GetFiles(startpath, job.SearchPattern, SearchOption.AllDirectories);
+                        }
+                        else
+                        {
+                            string excludepattern = job.ExcludePattern;
+                            Regex r = new Regex(string.Format("^{0}$", excludepattern.Replace("*", ".*")), RegexOptions.IgnoreCase);
+                            images = (Directory.GetFiles(startpath, job.SearchPattern, SearchOption.AllDirectories).Where(f => !r.IsMatch(Path.GetFileName(f)))).ToArray();
+                        }
+                        //Get the desired image sizes
+                        if (File.Exists(Globals.Paths.Conf))
+                        {
+                            string[] sizes;
+                            INIFile ini = new INIFile(Globals.Paths.Conf);
+                            sizes = (ini.INIReadValue(game, category).Split(','));
+                            foreach (string size in sizes)
                             {
-                                var identify = new Process
+                                //Create a destination directory
+                                string dWidth = size.Split('x')[0];
+                                Directory.CreateDirectory(Path.Combine(Globals.Paths.Assets, job.Path, dWidth));
+                                foreach (string image in images)
                                 {
-                                    StartInfo = new ProcessStartInfo {
-                                        FileName = "identify.exe",
-                                        Arguments = String.Format(" -format %wx%h {0}", image),
-                                        WindowStyle = ProcessWindowStyle.Hidden,
-                                        UseShellExecute = false,
-                                        RedirectStandardOutput = true,
-                                        CreateNoWindow = true
+                                    // Get the extension so we only have to use IM identify when necessary
+                                    string ext = Path.GetExtension(image);
+                                    string dimensions = null;
+                                    if (ext == ".dds" || ext == ".tga")
+                                    {
+                                        var identify = new Process
+                                        {
+                                            StartInfo = new ProcessStartInfo
+                                            {
+                                                FileName = "identify.exe",
+                                                Arguments = String.Format(" -format %wx%h {0}", image),
+                                                WindowStyle = ProcessWindowStyle.Hidden,
+                                                UseShellExecute = false,
+                                                RedirectStandardOutput = true,
+                                                CreateNoWindow = true
+                                            }
+                                        };
+                                        identify.Start();
+                                        dimensions = identify.StandardOutput.ReadLine();
                                     }
-                                };
-                                identify.Start();
-                                dimensions = identify.StandardOutput.ReadLine();
-                            }
-                            else
-                            {
-                                Bitmap bitmap = new Bitmap(image);
-                                dimensions = String.Format("{0}x{1}", bitmap.Width, bitmap.Height);
-                                bitmap.Dispose();
-                            }
-                            string outputname = String.Format("{0}.png", Path.GetFileNameWithoutExtension(image));
-                            string destpath = Path.Combine(Globals.Paths.Assets, job.Path, dWidth, outputname);
-                            // Only convert when the sizes are different otherwise just copy
-                            if (dimensions != size)
-                            {
-                                string settings = null;
-                                // Take care of the numerous cases
-                                switch (job.Path)
-                                {
-                                    // Dota 2 Items
-                                    case @"Dota 2\Items\":
-                                        settings += "-gravity west -crop ";
-                                        switch (dimensions)
+                                    else
+                                    {
+                                        Bitmap bitmap = new Bitmap(image);
+                                        dimensions = String.Format("{0}x{1}", bitmap.Width, bitmap.Height);
+                                        bitmap.Dispose();
+                                    }
+                                    string outputname = String.Format("{0}.png", Path.GetFileNameWithoutExtension(image));
+                                    string destpath = Path.Combine(Globals.Paths.Assets, job.Path, dWidth, outputname);
+                                    // Only convert when the sizes are different otherwise just copy
+                                    if (dimensions != size)
+                                    {
+                                        string settings = null;
+                                        // Take care of the numerous cases
+                                        switch (job.Path)
                                         {
-                                            case "128x64":
-                                                settings += "87x64+0+0";
+                                            // Dota 2 Items
+                                            case @"Dota 2\Items\":
+                                                settings += "-gravity west -crop ";
+                                                switch (dimensions)
+                                                {
+                                                    case "128x64":
+                                                        settings += "87x64+0+0";
+                                                        break;
+                                                    case "124x62":
+                                                        settings += "86x62+0+0";
+                                                        break;
+                                                    case "128x128":
+                                                        settings += "128x128+0+0";
+                                                        break;
+                                                    case "124x64":
+                                                        settings += "88x64+0+0";
+                                                        break;
+                                                }
+                                                settings += " +repage";
                                                 break;
-                                            case "124x62":
-                                                settings += "86x62+0+0";
+                                            // Smite Abilities
+                                            case @"Smite\Abilities\":
+                                                settings += "-alpha off";
+                                                switch (dimensions)
+                                                {
+                                                    // Ability Banners
+                                                    case "256x128":
+                                                        settings += "-gravity center -crop 128x128+0+0 +repage";
+                                                        break;
+                                                    default:
+                                                        break;
+                                                }
                                                 break;
-                                            case "128x128":
-                                                settings += "128x128+0+0";
-                                                break;
-                                            case "124x64":
-                                                settings += "88x64+0+0";
-                                                break;
-                                        }
-                                        settings += " +repage";
-                                        break;
-                                    // Smite Abilities
-                                    case @"Smite\Abilities\":
-                                        settings += "-alpha off";
-                                        switch (dimensions)
-                                        {
-                                            // Ability Banners
-                                            case "256x128":
-                                                settings += "-gravity center -crop 128x128+0+0 +repage";
+                                            // Smite Gods
+                                            case @"Smite\Gods\Portrait\":
+                                                settings += "-alpha off -gravity west -crop 388x512+0+0 +repage";
                                                 break;
                                             default:
+                                                // StarCraft II Upgrades and Abilities
+                                                if ((job.Path == @"StarCraft II\Upgrades\") || (job.Path == @"StarCraft II\Abilities\"))
+                                                {
+                                                    settings += "-shave 7x7 +repage";
+                                                }
+                                                // Heroes of Newerth
+                                                if (job.Path.StartsWith("Heroes of Newerth"))
+                                                {
+                                                    settings += "-flip";
+                                                }
                                                 break;
                                         }
-                                        break;
-                                    // Smite Gods
-                                    case @"Smite\Gods\Portrait\":
-                                        settings += "-alpha off -gravity west -crop 388x512+0+0 +repage";
-                                        break;
-                                    default:
-                                        // StarCraft II Upgrades and Abilities
-                                        if ((job.Path == @"StarCraft II\Upgrades\") || (job.Path == @"StarCraft II\Abilities\"))
+                                        //
+                                        Console.WriteLine("Scaling {0} from {1} to {2}", Path.GetFileName(image), dimensions, size);
+                                        var magick = new Process
                                         {
-                                            settings += "-shave 7x7 +repage";
-                                        }
-                                        // Heroes of Newerth
-                                        if (job.Path.StartsWith("Heroes of Newerth"))
-                                        {
-                                            settings += "-flip";
-                                        }
-                                        break;
-                                }
-                                //
-                                Console.WriteLine("Scaling {0} from {1} to {2}", Path.GetFileName(image), dimensions, size);
-                                var magick = new Process
-                                {
-                                    StartInfo = new ProcessStartInfo {
-                                        FileName = "magick.exe",
-                                        Arguments = String.Format(" \"{0}\" -colorspace RGB -size \"{1}\" +sigmoidal-contrast 11.6933 -define filter:filter=Sinc -define filter:window=Jinc -define filter:lobes=3 {2} -resize \"{3}\"! -sigmoidal-contrast 11.6933 -colorspace sRGB \"{4}\"", @image, dimensions, settings, size, @destpath),
-                                        WindowStyle = ProcessWindowStyle.Hidden,
-                                        UseShellExecute = false,
-                                        RedirectStandardOutput = false,
-                                        CreateNoWindow = true
+                                            StartInfo = new ProcessStartInfo
+                                            {
+                                                FileName = "magick.exe",
+                                                Arguments = String.Format(" \"{0}\" -colorspace RGB -size \"{1}\" +sigmoidal-contrast 11.6933 -define filter:filter=Sinc -define filter:window=Jinc -define filter:lobes=3 {2} -resize \"{3}\"! -sigmoidal-contrast 11.6933 -colorspace sRGB \"{4}\"", @image, dimensions, settings, size, @destpath),
+                                                WindowStyle = ProcessWindowStyle.Hidden,
+                                                UseShellExecute = false,
+                                                RedirectStandardOutput = false,
+                                                CreateNoWindow = true
+                                            }
+                                        };
+                                        magick.Start();
                                     }
-                                };
-                                magick.Start();
-                            }
-                            else
-                            {
-                                File.Copy(image, destpath, true);
-                                Console.WriteLine("Copying {0} to {1}", Path.GetFileName(image), size);
+                                    else
+                                    {
+                                        File.Copy(image, destpath, true);
+                                        Console.WriteLine("Copying {0} to {1}", Path.GetFileName(image), size);
+                                    }
+                                }
                             }
                         }
                     }
@@ -406,11 +414,11 @@ namespace Kurouzu.Helpers
         //
         public static void BuildDirectoryTree(string[] dirs)
         {
-            foreach(string dir in dirs)
+            Parallel.ForEach(dirs, dir =>
             {
                 Directory.CreateDirectory(Path.Combine(Globals.Paths.Assets, dir, "Source"));
                 Console.WriteLine("Creating {0}", dir);
-            }
+            });
         }
 
         //
@@ -489,7 +497,7 @@ namespace Kurouzu.Helpers
         //
         public static void BatchFileCopy(List<CopyJob> copyjobs)
         {
-            foreach(Kurouzu.Helpers.CopyJob job in copyjobs)
+            Parallel.ForEach(copyjobs, job =>
             {
                 SearchOption recursion = SearchOption.TopDirectoryOnly;
                 if (job.Recursion == true)
@@ -513,7 +521,7 @@ namespace Kurouzu.Helpers
                     Console.WriteLine("Copying {0}", filename);
                     File.Copy(found, Path.Combine(Globals.Paths.Assets, job.OutputPath, "Source", filename), true);
                 }
-            }
+            });
         }
 
         //
