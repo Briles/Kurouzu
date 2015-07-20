@@ -1,15 +1,11 @@
 using System;
 using System.IO;
+using ImageMagick;
 using System.Linq;
-using System.Text;
 using System.Drawing;
-using Microsoft.Win32;
-using System.Threading;
-using System.Reflection;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Collections.Generic;
-using System.Security.Permissions;
 using System.Text.RegularExpressions;
 //
 using Blazinix.INI;
@@ -19,6 +15,8 @@ namespace Kurouzu.Helpers
 {
     public static class Helper
     {
+        //
+        //
         public static void BatchFileRename(string game)
         {
             string[] csvs = Directory.GetFiles(Path.Combine(Globals.Paths.Data, game), "*.csv", SearchOption.AllDirectories).ToArray();
@@ -82,6 +80,8 @@ namespace Kurouzu.Helpers
             }
         }
 
+        //
+        //
         public static void InitINI()
         {
             Console.Write("This is your first time running Kurouzu. Configuring.");
@@ -98,6 +98,8 @@ namespace Kurouzu.Helpers
             Console.WriteLine(".Done! :)");
         }
 
+        //
+        //
         public static void ValidateINI(string gameTitle)
         {
             const string INISection = "Game Paths";
@@ -128,6 +130,8 @@ namespace Kurouzu.Helpers
             }
         }
 
+        //
+        //
         public static void MinifyPNG()
         {
             int num = 0;
@@ -177,6 +181,8 @@ namespace Kurouzu.Helpers
             }
         }
 
+        //
+        //
         public static void PostCleanup(string game)
         {
             //Delete all source folders
@@ -202,6 +208,8 @@ namespace Kurouzu.Helpers
             }
         }
 
+        //
+        //
         public static void BatchIMScale(List<ScalingJob> scalingjobs)
         {
             foreach (var job in scalingjobs)
@@ -232,12 +240,12 @@ namespace Kurouzu.Helpers
                     string[] sizes;
                     INIFile ini = new INIFile(Globals.Paths.Conf);
                     sizes = (ini.INIReadValue(game, category).Split(','));
-                    Parallel.ForEach(sizes, size =>
+                    foreach(string size in sizes)
                     {
                         //Create a destination directory
                         string dWidth = size.Split('x')[0];
                         Directory.CreateDirectory(Path.Combine(Globals.Paths.Assets, job.Path, dWidth));
-                        Parallel.ForEach(images, image =>
+                        foreach(string image in images)
                         {
                             // Get the extension so we only have to use IM identify when necessary
                             string ext = Path.GetExtension(image);
@@ -343,12 +351,14 @@ namespace Kurouzu.Helpers
                                 File.Copy(image, destpath, true);
                                 Console.WriteLine("Copying {0} to {1}", Path.GetFileName(image), size);
                             }
-                        });
-                    });
+                        }
+                    }
                 }
             }
         }
 
+        //
+        //
         public static void PreCleanup(string game)
         {
             //Delete all game folders
@@ -371,7 +381,9 @@ namespace Kurouzu.Helpers
                     }
                 });
             }
-            // Delete previous logs
+
+            // Delete previous logs.
+            //
             if (Directory.Exists(Globals.Paths.Logs))
             {
                 string[] sources = Directory.GetFiles(Globals.Paths.Logs, ("log_*_" + (game.Replace(' ','-').ToLower()) + "_*.txt"), SearchOption.AllDirectories);
@@ -390,6 +402,8 @@ namespace Kurouzu.Helpers
             }
         }
 
+        //
+        //
         public static void BuildDirectoryTree(string[] dirs)
         {
             foreach(string dir in dirs)
@@ -399,12 +413,16 @@ namespace Kurouzu.Helpers
             }
         }
 
+        //
+        //
         public static void BuildSourceDirectory(string dir_name)
         {
             Directory.CreateDirectory(Path.Combine(Globals.Paths.Assets, "Source", dir_name));
             Console.WriteLine("Creating {0}", dir_name);
         }
 
+        //
+        //
         public static void SWFExtract(string inpath, string outpath)
         {
             List<string> swf_info = new List<string>();
@@ -467,6 +485,8 @@ namespace Kurouzu.Helpers
             }
         }
 
+        //
+        //
         public static void BatchFileCopy(List<CopyJob> copyjobs)
         {
             foreach(Kurouzu.Helpers.CopyJob job in copyjobs)
@@ -496,6 +516,8 @@ namespace Kurouzu.Helpers
             }
         }
 
+        //
+        //
         public static IEnumerable<string> EnumerateDirectories(string parentDirectory, string searchPattern, SearchOption searchOpt)
         {
             try
@@ -513,6 +535,8 @@ namespace Kurouzu.Helpers
             }
         }
 
+        //
+        //
         public static IEnumerable<string> EnumerateFiles(string path, string searchPattern, SearchOption searchOpt)
         {
             try
@@ -531,6 +555,8 @@ namespace Kurouzu.Helpers
         }
     }
 
+    //
+    //
     public class CopyJob
     {
         // Jobs take the form { output path = string, { start path = string, recursion flag = true/false, search pattern = string, exclude pattern = string (to regex) } }
@@ -576,6 +602,8 @@ namespace Kurouzu.Helpers
         }
     }
 
+    //
+    //
     public class ScalingJob
     {
         // Scaling jobs take the form { string start path, string search pattern, string exclude pattern }
