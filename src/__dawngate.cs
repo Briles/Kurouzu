@@ -13,13 +13,13 @@ namespace Kurouzu.Games
     {
         public static void Process()
         {
-            string Abilities = @"Dawngate\Abilities\";
-            string Items = @"Dawngate\Items\";
-            string ShapersPortrait = @"Dawngate\Shapers\Portrait\";
-            string ShapersSquare = @"Dawngate\Shapers\Square\";
-            string Sparks = @"Dawngate\Sparks\";
-            string Spells = @"Dawngate\Spells\";
-            string Spiritstones = @"Dawngate\Spiritstones\";
+            const string Abilities = @"Dawngate\Abilities\";
+            const string Items = @"Dawngate\Items\";
+            const string ShapersPortrait = @"Dawngate\Shapers\Portrait\";
+            const string ShapersSquare = @"Dawngate\Shapers\Square\";
+            const string Sparks = @"Dawngate\Sparks\";
+            const string Spells = @"Dawngate\Spells\";
+            const string Spiritstones = @"Dawngate\Spiritstones\";
             string[] Directories = { Abilities, Items, ShapersPortrait, ShapersSquare, Sparks, Spells, Spiritstones };
             Helper.BuildDirectoryTree(Directories);
             // Get the path of the source

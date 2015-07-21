@@ -13,10 +13,10 @@ namespace Kurouzu.Games
     {
         public static void Process()
         {
-            string Abilities = @"Smite\Abilities\";
-            string GodsPortrait = @"Smite\Gods\Portrait\";
-            string GodsSquare = @"Smite\Gods\Square";
-            string Items = @"Smite\Items\";
+            const string Abilities = @"Smite\Abilities\";
+            const string GodsPortrait = @"Smite\Gods\Portrait\";
+            const string GodsSquare = @"Smite\Gods\Square";
+            const string Items = @"Smite\Items\";
             string[] Directories = { Abilities, Items, GodsPortrait, GodsSquare };
             Helper.BuildDirectoryTree(Directories);
             // Get the path of the source

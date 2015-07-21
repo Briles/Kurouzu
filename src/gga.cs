@@ -22,7 +22,7 @@ namespace Kurouzu.Main
         static void Main(string[] args)
         {
             var options = new Options();
-            if (CommandLine.Parser.Default.ParseArgumentsStrict(args, options))
+            if (Parser.Default.ParseArgumentsStrict(args, options))
             {
                 Console.WriteLine("\nRunning in {0} from {1}\n", Globals.Paths.Work, Globals.Paths.Home);
                 string proper = Game.GetGamebyProp(options.InputGame.Trim()).Title;

@@ -13,12 +13,12 @@ namespace Kurouzu.Games
     {
         public static void Process()
         {
-            string HeroesPortrait = @"Heroes of the Storm\Heroes\Portrait\";
-            string HeroesLandscape = @"Heroes of the Storm\Heroes\Portrait\";
-            string HeroesRound = @"Heroes of the Storm\Heroes\Round\";
-            string HeroesBanner = @"Heroes of the Storm\Heroes\Banner\";
-            string Talents = @"Heroes of the Storm\Talents\";
-            string UI = @"Heroes of the Storm\UI\";
+            const string HeroesPortrait = @"Heroes of the Storm\Heroes\Portrait\";
+            const string HeroesLandscape = @"Heroes of the Storm\Heroes\Portrait\";
+            const string HeroesRound = @"Heroes of the Storm\Heroes\Round\";
+            const string HeroesBanner = @"Heroes of the Storm\Heroes\Banner\";
+            const string Talents = @"Heroes of the Storm\Talents\";
+            const string UI = @"Heroes of the Storm\UI\";
             string[] Directories = { HeroesPortrait, HeroesLandscape, HeroesRound, HeroesBanner, Talents, UI };
             Helper.BuildDirectoryTree(Directories);
             // Get the path of the source

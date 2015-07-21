@@ -13,14 +13,14 @@ namespace Kurouzu.Games
     {
         public static void Process()
         {
-            string ChampionsSquare = @"League of Legends\Champions\Square\";
-            string ChampionsPortrait = @"League of Legends\Champions\Portrait\";
-            string ChampionsLandscape = @"League of Legends\Champions\Landscape\";
-            string Abilities = @"League of Legends\Abilities\";
-            string Items = @"League of Legends\Items\";
-            string Spells = @"League of Legends\Spells\";
-            string Masteries = @"League of Legends\Masteries\";
-            string Runes = @"League of Legends\Runes\";
+            const string ChampionsSquare = @"League of Legends\Champions\Square\";
+            const string ChampionsPortrait = @"League of Legends\Champions\Portrait\";
+            const string ChampionsLandscape = @"League of Legends\Champions\Landscape\";
+            const string Abilities = @"League of Legends\Abilities\";
+            const string Items = @"League of Legends\Items\";
+            const string Spells = @"League of Legends\Spells\";
+            const string Masteries = @"League of Legends\Masteries\";
+            const string Runes = @"League of Legends\Runes\";
             string[] Directories = { ChampionsSquare, ChampionsPortrait, ChampionsLandscape, Abilities, Items, Spells, Masteries, Runes };
             Helper.BuildDirectoryTree(Directories);
             // Get the path of the source
@@ -55,7 +55,7 @@ namespace Kurouzu.Games
             }
             // Copy the rest of the source assets
             // Copy jobs take the form { output path = string, { string start path, bool recursion flag, string search pattern, string exclude pattern } }
-            string SourceReleases = @"RADS\projects\lol_air_client\releases";
+            const string SourceReleases = @"RADS\projects\lol_air_client\releases";
             string SourceVersion = Directory.GetDirectories(Path.Combine(SourcePath, SourceReleases))[0];
             string SourceAssets = Path.Combine(SourcePath, SourceReleases, SourceVersion, @"deploy\assets");
             List<CopyJob> CopyJobs = new List<CopyJob>

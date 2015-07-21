@@ -13,11 +13,11 @@ namespace Kurouzu.Games
     {
         public static void Process()
         {
-            string HeroesMini = @"Dota 2\Heroes\Mini\";
-            string HeroesLandscape = @"Dota 2\Heroes\Landscape\";
-            string HeroesPortrait = @"Dota 2\Heroes\Portrait\";
-            string Items = @"Dota 2\Items\";
-            string Spells = @"Dota 2\Spells\";
+            const string HeroesMini = @"Dota 2\Heroes\Mini\";
+            const string HeroesLandscape = @"Dota 2\Heroes\Landscape\";
+            const string HeroesPortrait = @"Dota 2\Heroes\Portrait\";
+            const string Items = @"Dota 2\Items\";
+            const string Spells = @"Dota 2\Spells\";
             string[] Directories = { HeroesMini, HeroesLandscape, HeroesPortrait, Items, Spells };
             Helper.BuildDirectoryTree(Directories);
             // Get the path of the source

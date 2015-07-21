@@ -13,12 +13,12 @@ namespace Kurouzu.Games
     {
         public static void Process()
         {
-            string UnitsPortrait = @"StarCraft II\Units\Portrait\";
-            string UnitsSquare = @"StarCraft II\Units\Square\";
-            string Buildings = @"StarCraft II\Buildings\";
-            string Abilities = @"StarCraft II\Abilities\";
-            string Upgrades = @"StarCraft II\Upgrades\";
-            string UI = @"StarCraft II\UI\";
+            const string UnitsPortrait = @"StarCraft II\Units\Portrait\";
+            const string UnitsSquare = @"StarCraft II\Units\Square\";
+            const string Buildings = @"StarCraft II\Buildings\";
+            const string Abilities = @"StarCraft II\Abilities\";
+            const string Upgrades = @"StarCraft II\Upgrades\";
+            const string UI = @"StarCraft II\UI\";
             string[] Directories = { UnitsPortrait, UnitsSquare, Buildings, Abilities, Upgrades, UI };
             Helper.BuildDirectoryTree(Directories);
             // Get the path of the source
