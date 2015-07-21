@@ -15,66 +15,72 @@ namespace Kurouzu.Helpers
 {
     public static class Helper
     {
+        private static IEnumerable<object> dirs;
+
         //
         //
         public static void BatchFileRename(string game)
         {
-            string[] csvs = Directory.GetFiles(Path.Combine(Globals.Paths.Data, game), "*.csv", SearchOption.AllDirectories).ToArray();
-            Parallel.ForEach(csvs, csv =>
+            string[] CSVs = Directory.GetFiles(Path.Combine(Globals.Paths.Data, game), "*.csv", SearchOption.AllDirectories).ToArray();
+            Parallel.ForEach(CSVs, CSV =>
             {
-                List<string> unused = new List<string>();
-                string directory = Path.GetFileNameWithoutExtension(csv);
-                List<string> assets = new List<string>(Directory.GetFiles(Path.Combine(Globals.Paths.Assets, game, directory), "*", SearchOption.AllDirectories));
-                using(var re = new StreamReader(csv))
+                List<string> RenamePairsNotUsed = new List<string>();
+                string Directory = Path.GetFileNameWithoutExtension(CSV);
+                List<string> Assets = new List<string>(System.IO.Directory.GetFiles(Path.Combine(Globals.Paths.Assets, game, Directory), "*", SearchOption.AllDirectories));
+                using(var RenamePairs = new StreamReader(CSV))
                 {
-                    string l;
-                    while ((l = re.ReadLine()) != null)
+                    string Line;
+                    while ((Line = RenamePairs.ReadLine()) != null)
                     {
-                        string[] p = l.Split(',');
-                        string nOld= p[0];
-                        string nNew = p[1];
-                        string e = nOld;
-                        Regex r = new Regex(string.Format("^{0}$",e.Replace("*",".*")), RegexOptions.IgnoreCase);
-                        string[] matches = assets.Where(f => r.IsMatch(Path.GetFileNameWithoutExtension(f))).ToArray();
-                        if (matches.Length == 0)
+                        string[] Pair = Line.Split(',');
+                        string OldName= Pair[0];
+                        string NewName = Pair[1];
+                        string TempOldName = OldName;
+                        Regex r = new Regex(string.Format("^{0}$", TempOldName.Replace("*",".*")), RegexOptions.IgnoreCase);
+                        string[] Matches = Assets.Where(f => r.IsMatch(Path.GetFileNameWithoutExtension(f))).ToArray();
+                        if (Matches.Length == 0)
                         {
-                            unused.Add(nOld);
+                            RenamePairsNotUsed.Add(OldName);
                             continue;
                         }
-                        foreach(string asset in matches)
+                        foreach(string Asset in Matches)
                         {
-                            string filename = Path.GetFileName(asset);
-                            string file_ext = Path.GetExtension(asset);
-                            string file_directory = Path.GetDirectoryName(asset);
-                            string dest = Path.Combine(file_directory, (nNew + file_ext));
-                            if (!String.Equals(asset, dest, StringComparison.OrdinalIgnoreCase))
+                            string FileName = Path.GetFileName(Asset);
+                            string FileExtension = Path.GetExtension(Asset);
+                            string FileDirectoryName = Path.GetDirectoryName(Asset);
+                            string Destination = Path.Combine(FileDirectoryName, (NewName + FileExtension));
+                            if (!string.Equals(Asset, Destination, StringComparison.OrdinalIgnoreCase))
                             {
-                                Console.WriteLine("Renaming {0} to {1}", filename, (nNew + file_ext));
-                                File.Move(asset, dest);
-                                File.Delete(asset);
+                                Console.WriteLine("Renaming {0} to {1}", FileName, (NewName + FileExtension));
+                                File.Move(Asset, Destination);
+                                File.Delete(Asset);
                             }
-                            assets.Remove(asset);
+                            Assets.Remove(Asset);
                         }
                     }
                 }
-                // Don't log anything if logging is disabled
-                if (!Globals.Paths.Args.Contains("-nolog", StringComparer.OrdinalIgnoreCase))
+                // Don't log anything if logging is disabled.
+                var options = new Options();
+                if (CommandLine.Parser.Default.ParseArgumentsStrict(Globals.Paths.Arguments, options))
                 {
-                    // Any leftover assets are those that are not in the csvs
-                    if (assets.Count > 0)
+                    if (options.Logging == true)
                     {
-                        assets.Sort();
-                        string unmatched_log = (Globals.Paths.Logs + @"\log_unmatched_" + (game.Replace(" ", "-")) + "_" + directory + ".txt").ToLower();
-                        string unmatched = "-----This log lists any files that were not renamed. These names should be added to the csv file-----\r\n" + String.Join("\r\n", assets.Select(f => Path.GetFileNameWithoutExtension(f)).ToArray());
-                        File.AppendAllText(unmatched_log, unmatched, System.Text.Encoding.UTF8);
-                    }
-                    // Any old names in the csv no longer being used should be removed
-                    if (unused.Count > 0)
-                    {
-                        unused.Sort();
-                        string unused_log = (Globals.Paths.Logs + @"\log_unused_" + (game.Replace(" ", "-")) + "_" + directory + ".txt").ToLower();
-                        string unused_str = "-----This log lists all old names that were not matched against any file names. For performance these old names should be removed from the csv file-----\r\n" + String.Join("\r\n", unused.ToArray());
-                        File.AppendAllText(unused_log, unused_str, System.Text.Encoding.UTF8);
+                        // Any leftover assets are those that are not in the csvs.
+                        if (Assets.Count > 0)
+                        {
+                            Assets.Sort();
+                            string NotMatchedLogPath = (Globals.Paths.Logs + @"\log_unmatched_" + (game.Replace(" ", "-")) + "_" + Directory + ".txt").ToLower();
+                            string NotMatchedLogContent = "-----This log lists any files that were not renamed. These names should be added to the csv file-----\r\n" + string.Join("\r\n", Assets.Select(f => Path.GetFileNameWithoutExtension(f)).ToArray());
+                            File.AppendAllText(NotMatchedLogPath, NotMatchedLogContent, System.Text.Encoding.UTF8);
+                        }
+                        // Any old names in the csv no longer being used should be removed
+                        if (RenamePairsNotUsed.Count > 0)
+                        {
+                            RenamePairsNotUsed.Sort();
+                            string NotUsedLogPath = (Globals.Paths.Logs + @"\log_unused_" + (game.Replace(" ", "-")) + "_" + Directory + ".txt").ToLower();
+                            string NotUsedLogContent = "-----This log lists all old names that were not matched against any file names. For performance these old names should be removed from the csv file-----\r\n" + string.Join("\r\n", RenamePairsNotUsed.ToArray());
+                            File.AppendAllText(NotUsedLogPath, NotUsedLogContent, System.Text.Encoding.UTF8);
+                        }
                     }
                 }
             });
@@ -86,7 +92,7 @@ namespace Kurouzu.Helpers
         {
             Console.Write("This is your first time running Kurouzu. Configuring.");
             const string INISection = "Game Paths";
-            INIFile INI = new INIFile(Globals.Paths.Conf);
+            INIFile INI = new INIFile(Globals.Paths.ConfigurationFile);
             Parallel.ForEach(Globals.Games, Game =>
             {
                 INI.INIWriteValue(INISection, Game.Title, Game.Source);
@@ -104,8 +110,8 @@ namespace Kurouzu.Helpers
         {
             const string INISection = "Game Paths";
             Game game = Game.GetGamebyProp(gameTitle);
-            INIFile INI = new INIFile(Globals.Paths.Conf);
-            if (!File.Exists(Globals.Paths.Conf))
+            INIFile INI = new INIFile(Globals.Paths.ConfigurationFile);
+            if (!File.Exists(Globals.Paths.ConfigurationFile))
             {
                 InitINI();
             }
@@ -133,10 +139,10 @@ namespace Kurouzu.Helpers
         //
         public static void MinifyPNG()
         {
-            int num = 0;
-            string[] pngs = Directory.GetFiles(Globals.Paths.Assets, "*.png", SearchOption.AllDirectories);
-            int count = pngs.Length;
-            foreach(string png in pngs)
+            int Counter = 0;
+            string[] ImageFiles = Directory.GetFiles(Globals.Paths.Assets, "*.png", SearchOption.AllDirectories);
+            int TotalImages = ImageFiles.Length;
+            foreach(string png in ImageFiles)
             {
                 // Set up the processes
                 var pngout = new Process
@@ -172,8 +178,8 @@ namespace Kurouzu.Helpers
                         CreateNoWindow = true
                     }
                 };
-                num++;
-                Console.WriteLine("Minifying {0}/{1}, {2}", num, count, Path.GetFileName(png));
+                Counter++;
+                Console.WriteLine("Minifying {0}/{1}, {2}", Counter, TotalImages, Path.GetFileName(png));
                 pngout.Start();
                 truepng.Start();
                 deflopt.Start();
@@ -187,16 +193,16 @@ namespace Kurouzu.Helpers
             //Delete all source folders
             if (Directory.Exists(Globals.Paths.Assets))
             {
-                List<string> sources = new List<string>(Directory.GetDirectories(Path.Combine(Globals.Paths.Assets, game), "Source", SearchOption.AllDirectories));
-                sources.AddRange(Directory.GetDirectories(Path.Combine(Globals.Paths.Assets, "Source"), game, SearchOption.AllDirectories));
-                Parallel.ForEach(sources, source =>
+                List<string> SourceDirectories = new List<string>(Directory.GetDirectories(Path.Combine(Globals.Paths.Assets, game), "Source", SearchOption.AllDirectories));
+                SourceDirectories.AddRange(Directory.GetDirectories(Path.Combine(Globals.Paths.Assets, "Source"), game, SearchOption.AllDirectories));
+                Parallel.ForEach(SourceDirectories, SourceDirectory =>
                 {
-                    if (Directory.Exists(source))
+                    if (Directory.Exists(SourceDirectory))
                     {
                         try
                         {
-                            Directory.Delete(source, true);
-                            Console.WriteLine("Deleting {0}", source);
+                            Directory.Delete(SourceDirectory, true);
+                            Console.WriteLine("Deleting {0}", SourceDirectory);
                         }
                         catch (IOException ex)
                         {
@@ -209,111 +215,111 @@ namespace Kurouzu.Helpers
 
         //
         //
-        public static void BatchIMScale(List<ScalingJob> scalingjobs)
+        public static void BatchIMScale(List<ScalingJob> scalingJobs)
         {
             var options = new Options();
-            if (CommandLine.Parser.Default.ParseArgumentsStrict(Globals.Paths.Args, options))
+            if (CommandLine.Parser.Default.ParseArgumentsStrict(Globals.Paths.Arguments, options))
             {
                 if (options.Scale == true)
                 {
-                    foreach (var job in scalingjobs)
+                    foreach (var ScalingJob in scalingJobs)
                     {
-                        string[] info = (job.Path).Split('\\');
-                        string game = info[0];
-                        string category = info[1];
-                        if (info.Length > 3)
+                        string[] FilePathInfo = (ScalingJob.Path).Split('\\');
+                        string Game = FilePathInfo[0];
+                        string Category = FilePathInfo[1];
+                        if (FilePathInfo.Length > 3)
                         {
-                            category += @"\" + info[2];
+                            Category += @"\" + FilePathInfo[2];
                         }
                         // Get the images to scale
-                        string[] images;
-                        string startpath = Path.Combine(Globals.Paths.Assets, job.Path, "Source");
-                        if (String.IsNullOrEmpty(job.ExcludePattern))
+                        string[] InputImages;
+                        string StartPath = Path.Combine(Globals.Paths.Assets, ScalingJob.Path, "Source");
+                        if (String.IsNullOrEmpty(ScalingJob.ExcludePattern))
                         {
-                            images = Directory.GetFiles(startpath, job.SearchPattern, SearchOption.AllDirectories);
+                            InputImages = Directory.GetFiles(StartPath, ScalingJob.SearchPattern, SearchOption.AllDirectories);
                         }
                         else
                         {
-                            string excludepattern = job.ExcludePattern;
-                            Regex r = new Regex(string.Format("^{0}$", excludepattern.Replace("*", ".*")), RegexOptions.IgnoreCase);
-                            images = (Directory.GetFiles(startpath, job.SearchPattern, SearchOption.AllDirectories).Where(f => !r.IsMatch(Path.GetFileName(f)))).ToArray();
+                            string ExcludePattern = ScalingJob.ExcludePattern;
+                            Regex r = new Regex(string.Format("^{0}$", ExcludePattern.Replace("*", ".*")), RegexOptions.IgnoreCase);
+                            InputImages = (Directory.GetFiles(StartPath, ScalingJob.SearchPattern, SearchOption.AllDirectories).Where(f => !r.IsMatch(Path.GetFileName(f)))).ToArray();
                         }
                         //Get the desired image sizes
-                        if (File.Exists(Globals.Paths.Conf))
+                        if (File.Exists(Globals.Paths.ConfigurationFile))
                         {
-                            string[] sizes;
-                            INIFile ini = new INIFile(Globals.Paths.Conf);
-                            sizes = (ini.INIReadValue(game, category).Split(','));
-                            foreach (string size in sizes)
+                            string[] OutputDimensions;
+                            INIFile INI = new INIFile(Globals.Paths.ConfigurationFile);
+                            OutputDimensions = (INI.INIReadValue(Game, Category).Split(','));
+                            foreach (string OutputDimension in OutputDimensions)
                             {
                                 //Create a destination directory
-                                string dWidth = size.Split('x')[0];
-                                Directory.CreateDirectory(Path.Combine(Globals.Paths.Assets, job.Path, dWidth));
-                                foreach (string image in images)
+                                string OutputWidth = OutputDimension.Split('x')[0];
+                                Directory.CreateDirectory(Path.Combine(Globals.Paths.Assets, ScalingJob.Path, OutputWidth));
+                                foreach (string InputImage in InputImages)
                                 {
                                     // Get the extension so we only have to use IM identify when necessary
-                                    string ext = Path.GetExtension(image);
-                                    string dimensions = null;
-                                    if (ext == ".dds" || ext == ".tga")
+                                    string ImageExtension = Path.GetExtension(InputImage);
+                                    string InputDimensions = null;
+                                    if (ImageExtension == ".dds" || ImageExtension == ".tga")
                                     {
-                                        var identify = new Process
+                                        var ImageMagickIdentify = new Process
                                         {
                                             StartInfo = new ProcessStartInfo
                                             {
                                                 FileName = "identify.exe",
-                                                Arguments = String.Format(" -format %wx%h {0}", image),
+                                                Arguments = String.Format(" -format %wx%h {0}", InputImage),
                                                 WindowStyle = ProcessWindowStyle.Hidden,
                                                 UseShellExecute = false,
                                                 RedirectStandardOutput = true,
                                                 CreateNoWindow = true
                                             }
                                         };
-                                        identify.Start();
-                                        dimensions = identify.StandardOutput.ReadLine();
+                                        ImageMagickIdentify.Start();
+                                        InputDimensions = ImageMagickIdentify.StandardOutput.ReadLine();
                                     }
                                     else
                                     {
-                                        Bitmap bitmap = new Bitmap(image);
-                                        dimensions = String.Format("{0}x{1}", bitmap.Width, bitmap.Height);
-                                        bitmap.Dispose();
+                                        Bitmap Bitmap = new Bitmap(InputImage);
+                                        InputDimensions = String.Format("{0}x{1}", Bitmap.Width, Bitmap.Height);
+                                        Bitmap.Dispose();
                                     }
-                                    string outputname = String.Format("{0}.png", Path.GetFileNameWithoutExtension(image));
-                                    string destpath = Path.Combine(Globals.Paths.Assets, job.Path, dWidth, outputname);
+                                    string OutputName = String.Format("{0}.png", Path.GetFileNameWithoutExtension(InputImage));
+                                    string DestinationPath = Path.Combine(Globals.Paths.Assets, ScalingJob.Path, OutputWidth, OutputName);
                                     // Only convert when the sizes are different otherwise just copy
-                                    if (dimensions != size)
+                                    if (InputDimensions != OutputDimension)
                                     {
-                                        string settings = null;
+                                        string ImageMagickSettings = null;
                                         // Take care of the numerous cases
-                                        switch (job.Path)
+                                        switch (ScalingJob.Path)
                                         {
                                             // Dota 2 Items
                                             case @"Dota 2\Items\":
-                                                settings += "-gravity west -crop ";
-                                                switch (dimensions)
+                                                ImageMagickSettings += "-gravity west -crop ";
+                                                switch (InputDimensions)
                                                 {
                                                     case "128x64":
-                                                        settings += "87x64+0+0";
+                                                        ImageMagickSettings += "87x64+0+0";
                                                         break;
                                                     case "124x62":
-                                                        settings += "86x62+0+0";
+                                                        ImageMagickSettings += "86x62+0+0";
                                                         break;
                                                     case "128x128":
-                                                        settings += "128x128+0+0";
+                                                        ImageMagickSettings += "128x128+0+0";
                                                         break;
                                                     case "124x64":
-                                                        settings += "88x64+0+0";
+                                                        ImageMagickSettings += "88x64+0+0";
                                                         break;
                                                 }
-                                                settings += " +repage";
+                                                ImageMagickSettings += " +repage";
                                                 break;
                                             // Smite Abilities
                                             case @"Smite\Abilities\":
-                                                settings += "-alpha off";
-                                                switch (dimensions)
+                                                ImageMagickSettings += "-alpha off";
+                                                switch (InputDimensions)
                                                 {
                                                     // Ability Banners
                                                     case "256x128":
-                                                        settings += "-gravity center -crop 128x128+0+0 +repage";
+                                                        ImageMagickSettings += "-gravity center -crop 128x128+0+0 +repage";
                                                         break;
                                                     default:
                                                         break;
@@ -321,41 +327,41 @@ namespace Kurouzu.Helpers
                                                 break;
                                             // Smite Gods
                                             case @"Smite\Gods\Portrait\":
-                                                settings += "-alpha off -gravity west -crop 388x512+0+0 +repage";
+                                                ImageMagickSettings += "-alpha off -gravity west -crop 388x512+0+0 +repage";
                                                 break;
                                             default:
                                                 // StarCraft II Upgrades and Abilities
-                                                if ((job.Path == @"StarCraft II\Upgrades\") || (job.Path == @"StarCraft II\Abilities\"))
+                                                if ((ScalingJob.Path == @"StarCraft II\Upgrades\") || (ScalingJob.Path == @"StarCraft II\Abilities\"))
                                                 {
-                                                    settings += "-shave 7x7 +repage";
+                                                    ImageMagickSettings += "-shave 7x7 +repage";
                                                 }
                                                 // Heroes of Newerth
-                                                if (job.Path.StartsWith("Heroes of Newerth"))
+                                                if (ScalingJob.Path.StartsWith("Heroes of Newerth"))
                                                 {
-                                                    settings += "-flip";
+                                                    ImageMagickSettings += "-flip";
                                                 }
                                                 break;
                                         }
                                         //
-                                        Console.WriteLine("Scaling {0} from {1} to {2}", Path.GetFileName(image), dimensions, size);
-                                        var magick = new Process
+                                        Console.WriteLine("Scaling {0} from {1} to {2}", Path.GetFileName(InputImage), InputDimensions, OutputDimension);
+                                        var ImageMagickMagick = new Process
                                         {
                                             StartInfo = new ProcessStartInfo
                                             {
                                                 FileName = "magick.exe",
-                                                Arguments = String.Format(" \"{0}\" -colorspace RGB -size \"{1}\" +sigmoidal-contrast 11.6933 -define filter:filter=Sinc -define filter:window=Jinc -define filter:lobes=3 {2} -resize \"{3}\"! -sigmoidal-contrast 11.6933 -colorspace sRGB \"{4}\"", @image, dimensions, settings, size, @destpath),
+                                                Arguments = String.Format(" \"{0}\" -colorspace RGB -size \"{1}\" +sigmoidal-contrast 11.6933 -define filter:filter=Sinc -define filter:window=Jinc -define filter:lobes=3 {2} -resize \"{3}\"! -sigmoidal-contrast 11.6933 -colorspace sRGB \"{4}\"", InputImage, InputDimensions, ImageMagickSettings, OutputDimension, DestinationPath),
                                                 WindowStyle = ProcessWindowStyle.Hidden,
                                                 UseShellExecute = false,
                                                 RedirectStandardOutput = false,
                                                 CreateNoWindow = true
                                             }
                                         };
-                                        magick.Start();
+                                        ImageMagickMagick.Start();
                                     }
                                     else
                                     {
-                                        File.Copy(image, destpath, true);
-                                        Console.WriteLine("Copying {0} to {1}", Path.GetFileName(image), size);
+                                        File.Copy(InputImage, DestinationPath, true);
+                                        Console.WriteLine("Copying {0} to {1}", Path.GetFileName(InputImage), OutputDimension);
                                     }
                                 }
                             }
@@ -369,18 +375,19 @@ namespace Kurouzu.Helpers
         //
         public static void PreCleanup(string game)
         {
-            //Delete all game folders
+            // Delete all game folders
+            //
             if (Directory.Exists(Globals.Paths.Assets))
             {
-                string[] sources = Directory.GetDirectories(Globals.Paths.Assets, game, SearchOption.AllDirectories);
-                Parallel.ForEach(sources, source =>
+                string[] SourceDirectories = Directory.GetDirectories(Globals.Paths.Assets, game, SearchOption.AllDirectories);
+                Parallel.ForEach(SourceDirectories, SourceDirectory =>
                 {
-                    if (Directory.Exists(source))
+                    if (Directory.Exists(SourceDirectory))
                     {
                         try
                         {
-                            Directory.Delete(source, true);
-                            Console.WriteLine("Deleting {0}", source);
+                            Directory.Delete(SourceDirectory, true);
+                            Console.WriteLine("Deleting {0}", SourceDirectory);
                         }
                         catch (IOException)
                         {
@@ -394,13 +401,13 @@ namespace Kurouzu.Helpers
             //
             if (Directory.Exists(Globals.Paths.Logs))
             {
-                string[] sources = Directory.GetFiles(Globals.Paths.Logs, ("log_*_" + (game.Replace(' ','-').ToLower()) + "_*.txt"), SearchOption.AllDirectories);
-                Parallel.ForEach(sources, source =>
+                string[] SourceLogs = Directory.GetFiles(Globals.Paths.Logs, ("log_*_" + (game.Replace(' ','-').ToLower()) + "_*.txt"), SearchOption.AllDirectories);
+                Parallel.ForEach(SourceLogs, Logfile =>
                 {
-                    if (File.Exists(source))
+                    if (File.Exists(Logfile))
                     {
-                        File.Delete(source);
-                        Console.WriteLine("Deleting {0}", source);
+                        File.Delete(Logfile);
+                        Console.WriteLine("Deleting {0}", Logfile);
                     }
                 });
             }
@@ -412,114 +419,102 @@ namespace Kurouzu.Helpers
 
         //
         //
-        public static void BuildDirectoryTree(string[] dirs)
+        public static void BuildDirectoryTree(string[] directoryNames)
         {
-            Parallel.ForEach(dirs, dir =>
+            Parallel.ForEach(directoryNames, DirectoryName =>
             {
-                Directory.CreateDirectory(Path.Combine(Globals.Paths.Assets, dir, "Source"));
-                Console.WriteLine("Creating {0}", dir);
+                Directory.CreateDirectory(Path.Combine(Globals.Paths.Assets, DirectoryName, "Source"));
+                Console.WriteLine("Creating {0}", DirectoryName);
             });
         }
 
         //
         //
-        public static void BuildSourceDirectory(string dir_name)
+        public static void BuildSourceDirectory(string directoryName)
         {
-            Directory.CreateDirectory(Path.Combine(Globals.Paths.Assets, "Source", dir_name));
-            Console.WriteLine("Creating {0}", dir_name);
+            Directory.CreateDirectory(Path.Combine(Globals.Paths.Assets, "Source", directoryName));
+            Console.WriteLine("Creating {0}", directoryName);
         }
 
         //
         //
-        public static void SWFExtract(string inpath, string outpath)
+        public static void SWFExtract(string inputPath, string outputPath)
         {
-            List<string> swf_info = new List<string>();
-            var pswfinfo = new Process
+            List<string> SWFFileInfo = new List<string>();
+            var SWFDump = new Process
             {
                 StartInfo = new ProcessStartInfo {
                     FileName = "swfdump.exe",
-                    Arguments = String.Format("\"{0}\" -u", inpath),
+                    Arguments = String.Format("\"{0}\" -u", inputPath),
                     WindowStyle = ProcessWindowStyle.Hidden,
                     UseShellExecute = false,
                     RedirectStandardOutput = true,
                     CreateNoWindow = true
                 }
             };
-            pswfinfo.Start();
-            while (!pswfinfo.StandardOutput.EndOfStream)
+            SWFDump.Start();
+            while (!SWFDump.StandardOutput.EndOfStream)
             {
-                string line = pswfinfo.StandardOutput.ReadLine();
-                swf_info.Add(line);
+                string line = SWFDump.StandardOutput.ReadLine();
+                SWFFileInfo.Add(line);
             }
-            Regex idrgx = new Regex("^.*id ");
-            Regex imrgx = new Regex(" image.*$");
-            Regex iprgx = new Regex("ImagePack_.*_Embeds__e_");
-            string[] swf_pngs = (swf_info.Where(info => info.Trim().Contains("DEFINEBITSLOSSLESS2")).Select(info => imrgx.Replace(idrgx.Replace(info.Trim(),""),""))).ToArray();
-            string[] swf_pairs = (swf_info.Where(info => info.Trim().Contains("exports")).Select(info => (iprgx.Replace(info.Replace("exports ","").Replace(" as ",",").Replace("\"",""),"")).Trim())).ToArray();
-            var pswfextractinit = new Process
+            Regex IDRegex = new Regex("^.*id ");
+            Regex ImageRegex = new Regex(" image.*$");
+            Regex ImagePackRegex = new Regex("ImagePack_.*_Embeds__e_");
+            string[] ParsedPNGs = (SWFFileInfo.Where(info => info.Trim().Contains("DEFINEBITSLOSSLESS2")).Select(info => ImageRegex.Replace(IDRegex.Replace(info.Trim(),""),""))).ToArray();
+            string[] SWFPairs = (SWFFileInfo.Where(info => info.Trim().Contains("exports")).Select(info => (ImagePackRegex.Replace(info.Replace("exports ","").Replace(" as ",",").Replace("\"",""),"")).Trim())).ToArray();
+            foreach (string SWFPair in SWFPairs)
             {
-                StartInfo = new ProcessStartInfo {
-                    FileName = "swfextract.exe",
-                    Arguments = String.Format("\"{0}\" -u", inpath),
-                    WindowStyle = ProcessWindowStyle.Hidden,
-                    UseShellExecute = false,
-                    RedirectStandardOutput = false,
-                    CreateNoWindow = true
-                }
-            };
-            pswfextractinit.Start();
-            foreach(string swf_pair in swf_pairs)
-            {
-                string[] pair = swf_pair.Split(',');
-                string swf_id = pair[0];
-                string swf_name = pair[1];
-                if (swf_pngs.Contains(swf_id))
+                string[] SWFString = SWFPair.Split(',');
+                string SWFID = SWFString[0];
+                string SWFName = SWFString[1];
+                if (ParsedPNGs.Contains(SWFID))
                 {
-                    string output_path = outpath + "\\" + swf_name + ".png";
-                    var pswfextract = new Process
+                    string DestinationPath = outputPath + "\\" + SWFName + ".png";
+                    var SWFExtract = new Process
                     {
                         StartInfo = new ProcessStartInfo {
                             FileName = "swfextract.exe",
-                            Arguments = String.Format(" -p \"{0}\" \"{1}\" -o \"{2}\"", swf_id, inpath, output_path),
+                            Arguments = String.Format(" -p \"{0}\" \"{1}\" -o \"{2}\"", SWFID, inputPath, DestinationPath),
                             WindowStyle = ProcessWindowStyle.Hidden,
                             UseShellExecute = false,
                             RedirectStandardOutput = false,
                             CreateNoWindow = true
                         }
                     };
-                    pswfextract.Start();
-                    Console.WriteLine("Extracting {0}", swf_name);
+                    SWFExtract.Start();
+                    Console.WriteLine("Extracting {0}", SWFName);
                 }
             }
         }
 
         //
         //
-        public static void BatchFileCopy(List<CopyJob> copyjobs)
+        public static void BatchFileCopy(List<CopyJob> copyJobs)
         {
-            Parallel.ForEach(copyjobs, job =>
+            Parallel.ForEach(copyJobs, CopyJob =>
             {
-                SearchOption recursion = SearchOption.TopDirectoryOnly;
-                if (job.Recursion == true)
+                SearchOption RecursionFlag = SearchOption.TopDirectoryOnly;
+                if (CopyJob.Recursion == true)
                 {
-                    recursion = SearchOption.AllDirectories;
+                    RecursionFlag = SearchOption.AllDirectories;
                 }
-                string[] founds;
-                if (String.IsNullOrEmpty(job.ExcludePattern))
+                string[] FilesFound;
+                if (String.IsNullOrEmpty(CopyJob.ExcludePattern))
                 {
-                    founds = Directory.GetFiles(job.Path, job.SearchPattern, recursion);
+                    FilesFound = Directory.GetFiles(CopyJob.Path, CopyJob.SearchPattern, RecursionFlag);
                 }
                 else
                 {
-                    string excludepattern = job.ExcludePattern;
-                    Regex r = new Regex(string.Format("^{0}$",excludepattern.Replace("*",".*")), RegexOptions.IgnoreCase);
-                    founds = (Directory.GetFiles(job.Path, job.SearchPattern, recursion).Where(f => !r.IsMatch(Path.GetFileName(f)))).ToArray();
+                    string ExcludePattern = CopyJob.ExcludePattern;
+                    Regex r = new Regex(string.Format("^{0}$",ExcludePattern.Replace("*",".*")), RegexOptions.IgnoreCase);
+                    FilesFound = (Directory.GetFiles(CopyJob.Path, CopyJob.SearchPattern, RecursionFlag).Where(f => !r.IsMatch(Path.GetFileName(f)))).ToArray();
                 }
-                foreach(string found in founds)
+                foreach(string FoundFile in FilesFound)
                 {
-                    string filename = Path.GetFileName(found);
-                    Console.WriteLine("Copying {0}", filename);
-                    File.Copy(found, Path.Combine(Globals.Paths.Assets, job.OutputPath, "Source", filename), true);
+                    string FileName = Path.GetFileName(FoundFile);
+                    Console.WriteLine("Copying {0}", FileName);
+                    File.Copy(FoundFile, Path.Combine(Globals.Paths.Assets, CopyJob.OutputPath, "Source", FileName), true);
                 }
             });
         }

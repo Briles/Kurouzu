@@ -13,55 +13,55 @@ namespace Kurouzu.Games
     {
         public static void Process()
         {
-            string units_portrait = @"Heroes of the Storm\Heroes\Portrait\";
-            string units_landscape = @"Heroes of the Storm\Heroes\Portrait\";
-            string units_round = @"Heroes of the Storm\Heroes\Round\";
-            string units_banner = @"Heroes of the Storm\Heroes\Banner\";
-            string talents = @"Heroes of the Storm\Talents\";
-            string ui = @"Heroes of the Storm\UI\";
-            string[] dirs = { units_portrait, units_landscape, units_round, units_banner, talents, ui };
-            Helper.BuildDirectoryTree(dirs);
+            string HeroesPortrait = @"Heroes of the Storm\Heroes\Portrait\";
+            string HeroesLandscape = @"Heroes of the Storm\Heroes\Portrait\";
+            string HeroesRound = @"Heroes of the Storm\Heroes\Round\";
+            string HeroesBanner = @"Heroes of the Storm\Heroes\Banner\";
+            string Talents = @"Heroes of the Storm\Talents\";
+            string UI = @"Heroes of the Storm\UI\";
+            string[] Directories = { HeroesPortrait, HeroesLandscape, HeroesRound, HeroesBanner, Talents, UI };
+            Helper.BuildDirectoryTree(Directories);
             // Get the path of the source
-            INIFile ini = new INIFile(Globals.Paths.Conf);
-            string source_path = ini.INIReadValue("Game Paths", "Heroes of the Storm");
+            INIFile INI = new INIFile(Globals.Paths.ConfigurationFile);
+            string SourcePath = INI.INIReadValue("Game Paths", "Heroes of the Storm");
             // Get the source
             // string[] filters = { "*portrait*static.dds", "*-unit-*.dds", "*-building-*.dds", "*-ability-*.dds", "*-armor-*.dds", "*-upgrade-*.dds", "*icon-*nobg.dds" };
-            string hotsdata = Path.Combine(source_path, @"HeroesData");
-            string dest = Path.Combine(Globals.Paths.Assets, "Source", "Heroes of the Storm");
-            var cascview = new Process
+            string GameData = Path.Combine(SourcePath, @"HeroesData");
+            string DestinationPath = Path.Combine(Globals.Paths.Assets, "Source", "Heroes of the Storm");
+            var CascView = new Process
             {
                 StartInfo = new ProcessStartInfo
                 {
                     FileName = "CascView.exe",
-                    Arguments = String.Format(" \"{0}\" \"*.dds\" \"{1}\" /fp", hotsdata, dest),
+                    Arguments = String.Format(" \"{0}\" \"*.dds\" \"{1}\" /fp", GameData, DestinationPath),
                     WindowStyle = ProcessWindowStyle.Hidden,
                     UseShellExecute = false,
                     RedirectStandardOutput = true,
                     CreateNoWindow = true
                 }
             };
-            cascview.Start();
-            while (!cascview.StandardOutput.EndOfStream)
+            CascView.Start();
+            while (!CascView.StandardOutput.EndOfStream)
             {
-                string line = cascview.StandardOutput.ReadLine();
-                Console.WriteLine(line);
+                string StandardOutputLine = CascView.StandardOutput.ReadLine();
+                Console.WriteLine(StandardOutputLine);
             }
             // Copy the rest of the source assets
             // Copy jobs take the form { string output path, { string start path, bool recursion flag, string search pattern, string exclude pattern } }
-            List<CopyJob> copyjobs = new List<CopyJob>
+            List<CopyJob> CopyJobs = new List<CopyJob>
             {
-                new CopyJob(units_portrait, Path.Combine(Globals.Paths.Assets, @"Source\Heroes of the Storm"), true, "*portrait_static.dds", null)
+                new CopyJob(HeroesPortrait, Path.Combine(Globals.Paths.Assets, @"Source\Heroes of the Storm"), true, "*portrait_static.dds", null)
             };
-            Helper.BatchFileCopy(copyjobs);
+            Helper.BatchFileCopy(CopyJobs);
             // Rename all the things
             Helper.BatchFileRename("Heroes of the Storm");
             // Scale all the things
             // Scaling jobs take the form { string start path, string search pattern, string exclude pattern }
-            List<ScalingJob> scalingjobs = new List<ScalingJob>
+            List<ScalingJob> ScalingJobs = new List<ScalingJob>
             {
-                new ScalingJob(units_portrait, "*.dds")
+                new ScalingJob(HeroesPortrait, "*.dds")
             };
-            // Helper.BatchIMScale(scalingjobs);
+            Helper.BatchIMScale(ScalingJobs);
         }
     }
 }

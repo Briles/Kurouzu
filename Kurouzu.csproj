@@ -237,7 +237,6 @@
     <Content Include="Graphics\icon.ico" />
     <Content Include="Graphics\Logo\logo.png" />
     <Content Include="icon.ico" />
-    <Content Include="src\quickbms_snap.txt" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />

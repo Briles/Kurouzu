@@ -21,6 +21,7 @@ Kurouzu is a Windows Command Line utility for extracting, renaming, and scaling 
 
 For Scaling:
 * [ImageMagick 7+](http://www.imagemagick.org/download/binaries/ "ImageMagick")
+
 For minification:
 * [PNGOUT](http://advsys.net/ken/utils.htm "PNGOUT")
 * [DeflOpt](https://chocolatey.org/packages/DeflOpt "DeflOpt")
@@ -30,10 +31,10 @@ The following need to be on your path for Kurouzu to work. Kurouzu only requires
 
 * Dawngate: [QuickBMS](http://aluigi.altervista.org/quickbms.htm/ "QuickBMS")
 * Dota 2: [HLExtract](http://nemesis.thewavelength.net/index.php?p=35 "HLExtract")
-* Heroes of Newerth [7-Zip](http://www.7-zip.org/ "7-Zip")
-* League of Legends [SWFExtract](http://www.swftools.org/ "SWFExtract")
-* Smite [Umodel](http://www.gildor.org/en/projects/umodel "Umodel")
-* StarCraft II [MPQ Editor](http://www.zezula.net/en/mpq/download.html "MPQ Editor")
+* Heroes of Newerth: [7-Zip](http://www.7-zip.org/ "7-Zip")
+* League of Legends: [SWFExtract](http://www.swftools.org/ "SWFExtract")
+* Smite: [Umodel](http://www.gildor.org/en/projects/umodel "Umodel")
+* StarCraft II: [MPQ Editor](http://www.zezula.net/en/mpq/download.html "MPQ Editor")
 
 ### [Contributing](https://github.com/Briles/Kurouzu/wiki/Contributing)
 

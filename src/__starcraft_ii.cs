@@ -13,74 +13,74 @@ namespace Kurouzu.Games
     {
         public static void Process()
         {
-            string units_portrait = @"StarCraft II\Units\Portrait\";
-            string units_square = @"StarCraft II\Units\Square\";
-            string buildings = @"StarCraft II\Buildings\";
-            string abilities = @"StarCraft II\Abilities\";
-            string upgrades = @"StarCraft II\Upgrades\";
-            string ui = @"StarCraft II\UI\";
-            string[] dirs = { units_portrait, units_square, buildings, abilities, upgrades, ui };
-            Helper.BuildDirectoryTree(dirs);
+            string UnitsPortrait = @"StarCraft II\Units\Portrait\";
+            string UnitsSquare = @"StarCraft II\Units\Square\";
+            string Buildings = @"StarCraft II\Buildings\";
+            string Abilities = @"StarCraft II\Abilities\";
+            string Upgrades = @"StarCraft II\Upgrades\";
+            string UI = @"StarCraft II\UI\";
+            string[] Directories = { UnitsPortrait, UnitsSquare, Buildings, Abilities, Upgrades, UI };
+            Helper.BuildDirectoryTree(Directories);
             // Get the path of the source
-            INIFile ini = new INIFile(Globals.Paths.Conf);
-            string source_path = ini.INIReadValue("Game Paths", "StarCraft II");
+            INIFile INI = new INIFile(Globals.Paths.ConfigurationFile);
+            string source_path = INI.INIReadValue("Game Paths", "StarCraft II");
             // Get the source
-            string[] filters = { "*portrait*static.dds", "*-unit-*.dds", "*-building-*.dds", "*-ability-*.dds", "*-armor-*.dds", "*-upgrade-*.dds", "*icon-*nobg.dds" };
-            string[] mpqs = Directory.GetFiles(Path.Combine(source_path, @"Mods"), "Base.SC2Assets", SearchOption.AllDirectories);
-            foreach(string mpq in mpqs)
+            string[] Filters = { "*portrait*static.dds", "*-unit-*.dds", "*-building-*.dds", "*-ability-*.dds", "*-armor-*.dds", "*-upgrade-*.dds", "*icon-*nobg.dds" };
+            string[] Packages = Directory.GetFiles(Path.Combine(source_path, @"Mods"), "Base.SC2Assets", SearchOption.AllDirectories);
+            foreach(string Package in Packages)
             {
-                string leaf = (Directory.GetParent(mpq).Name).Replace(".SC2Mod", "");
-                string dest = Path.Combine(Globals.Paths.Assets,"Source","StarCraft II",leaf);
-                foreach (string filter in filters)
+                string PathLeaf = (Directory.GetParent(Package).Name).Replace(".SC2Mod", "");
+                string Destination = Path.Combine(Globals.Paths.Assets,"Source","StarCraft II",PathLeaf);
+                foreach (string Filter in Filters)
                 {
-                    var mpqeditor = new Process
+                    var MPQEditor = new Process
                     {
                         StartInfo = new ProcessStartInfo
                         {
                             FileName = "MPQEditor.exe",
-                            Arguments = String.Format(" e \"{0}\" \"{1}\" \"{2}\" /fp", mpq, filter, dest),
+                            Arguments = String.Format(" e \"{0}\" \"{1}\" \"{2}\" /fp", Package, Filter, Destination),
                             WindowStyle = ProcessWindowStyle.Hidden,
                             UseShellExecute = false,
                             RedirectStandardOutput = true,
                             CreateNoWindow = true
                         }
                     };
-                    mpqeditor.Start();
-                    while (!mpqeditor.StandardOutput.EndOfStream)
+                    MPQEditor.Start();
+                    while (!MPQEditor.StandardOutput.EndOfStream)
                     {
-                        string line = mpqeditor.StandardOutput.ReadLine();
-                        Console.WriteLine(line);
+                        string StandardOutputLine = MPQEditor.StandardOutput.ReadLine();
+                        Console.WriteLine(StandardOutputLine);
                     }
                 }
             }
             // Copy the rest of the source assets
             // Copy jobs take the form { string output path, { string start path, bool recursion flag, string search pattern, string exclude pattern } }
-            List<CopyJob> copyjobs = new List<CopyJob>
+            List<CopyJob> CopyJobs = new List<CopyJob>
             {
-                new CopyJob(units_portrait, Path.Combine(Globals.Paths.Assets, @"Source\StarCraft II"), true, "*portrait_static.dds", null),
-                new CopyJob(units_square, Path.Combine(Globals.Paths.Assets, @"Source\StarCraft II"), true, "btn-unit-*.dds", null),
-                new CopyJob(buildings, Path.Combine(Globals.Paths.Assets, @"Source\StarCraft II"), true, "btn-building-*.dds", null),
-                new CopyJob(abilities, Path.Combine(Globals.Paths.Assets, @"Source\StarCraft II"), true, "btn-ability-*.dds", null),
-                new CopyJob(abilities, Path.Combine(Globals.Paths.Assets, @"Source\StarCraft II"), true, "btn-armor-*.dds", null),
-                new CopyJob(upgrades, Path.Combine(Globals.Paths.Assets, @"Source\StarCraft II"), true, "btn-upgrade-*.dds", null),
-                new CopyJob(ui, Path.Combine(Globals.Paths.Assets, @"Source\StarCraft II"), true, "icon-*-nobg.dds", null),
-                new CopyJob(ui, Path.Combine(Globals.Paths.Assets, @"Source\StarCraft II"), true, "icon-supply*_nobg.dds", null)
+                new CopyJob(UnitsPortrait, Path.Combine(Globals.Paths.Assets, @"Source\StarCraft II"), true, "*portrait_static.dds", null),
+                new CopyJob(UnitsSquare, Path.Combine(Globals.Paths.Assets, @"Source\StarCraft II"), true, "btn-unit-*.dds", null),
+                new CopyJob(Buildings, Path.Combine(Globals.Paths.Assets, @"Source\StarCraft II"), true, "btn-building-*.dds", null),
+                new CopyJob(Abilities, Path.Combine(Globals.Paths.Assets, @"Source\StarCraft II"), true, "btn-ability-*.dds", null),
+                new CopyJob(Abilities, Path.Combine(Globals.Paths.Assets, @"Source\StarCraft II"), true, "btn-armor-*.dds", null),
+                new CopyJob(Upgrades, Path.Combine(Globals.Paths.Assets, @"Source\StarCraft II"), true, "btn-upgrade-*.dds", null),
+                new CopyJob(UI, Path.Combine(Globals.Paths.Assets, @"Source\StarCraft II"), true, "icon-*-nobg.dds", null),
+                new CopyJob(UI, Path.Combine(Globals.Paths.Assets, @"Source\StarCraft II"), true, "icon-supply*_nobg.dds", null)
             };
-            Helper.BatchFileCopy(copyjobs);
+            Helper.BatchFileCopy(CopyJobs);
             // Rename all the things
             Helper.BatchFileRename("StarCraft II");
             // Scale all the things
             // Scaling jobs take the form { string start path, string search pattern, string exclude pattern }
-            List<ScalingJob> scalingjobs = new List<ScalingJob>
+            List<ScalingJob> ScalingJobs = new List<ScalingJob>
             {
-                new ScalingJob(units_portrait, "*.dds"),
-                new ScalingJob(units_square, "*.dds"),
-                new ScalingJob(buildings, "*.dds"),
-                new ScalingJob(abilities, "*.dds"),
-                new ScalingJob(upgrades, "*.dds"),
-                new ScalingJob(ui, "*.dds")
+                new ScalingJob(UnitsPortrait, "*.dds"),
+                new ScalingJob(UnitsSquare, "*.dds"),
+                new ScalingJob(Buildings, "*.dds"),
+                new ScalingJob(Abilities, "*.dds"),
+                new ScalingJob(Upgrades, "*.dds"),
+                new ScalingJob(UI, "*.dds")
             };
-            // Helper.BatchIMScale(scalingjobs);
+            Helper.BatchIMScale(ScalingJobs);
         }
     }
 }

@@ -29,11 +29,11 @@ namespace Kurouzu.Defaults
             public static readonly string Work = (Directory.GetCurrentDirectory() + @"\");
             public static readonly string Assets = Path.Combine(Work, "Assets");
             public static readonly string Home = (Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) + @"\");
-            public static readonly string Conf = Path.Combine(Home, "conf.ini");
+            public static readonly string ConfigurationFile = Path.Combine(Home, "conf.ini");
             public static readonly string Data = Path.Combine(Home, "data");
             public static readonly string Logs = Path.Combine(Home, "logs");
             public static readonly string[] Drives = Environment.GetLogicalDrives();
-            public static readonly string[] Args = Environment.GetCommandLineArgs();
+            public static readonly string[] Arguments = Environment.GetCommandLineArgs();
         }
 
         public static readonly List<Game> Games = new List<Game>() {
