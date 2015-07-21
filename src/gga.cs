@@ -1,10 +1,9 @@
-using System;
 using CommandLine;
-using System.Reflection;
-//
 using Kurouzu.Args;
-using Kurouzu.Helpers;
 using Kurouzu.Defaults;
+using Kurouzu.Helpers;
+using System;
+using System.Reflection;
 
 namespace Kurouzu.Main
 {
@@ -32,7 +31,10 @@ namespace Kurouzu.Main
                 Console.WriteLine("Processing {0}", proper);
                 Helper.BuildSourceDirectory(proper);
                 StartProcess(game);
-                Helper.PostCleanup(proper);
+                if (options.Debugging == false)
+                {
+                    Helper.PostCleanup(proper);
+                }
                 if (options.Minification == true)
                 {
                     // Minify

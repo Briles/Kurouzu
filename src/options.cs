@@ -14,5 +14,8 @@ namespace Kurouzu.Args
 
         [Option('l', "log", DefaultValue = false, Required = false, HelpText = "Writes logging information to ./logs/. Useful if maintaining your own rename pairs.")]
         public bool Logging { get; set; }
+
+        [Option('d', "debug", DefaultValue = false, Required = false, HelpText = "Prevents Kurouzu from cleaning up source files.")]
+        public bool Debugging { get; set; }
     }
 }

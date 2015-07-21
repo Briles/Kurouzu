@@ -32,7 +32,7 @@ namespace Kurouzu.Games
                     StartInfo = new ProcessStartInfo
                     {
                         FileName = "hlextract.exe",
-                        Arguments = String.Format(" -p \"{0}\" -d \"{1}\" -e \"{2}\"", Path.Combine(source_path, @"dota\pak01_dir.vpk"), Path.Combine(Globals.Paths.Assets, @"Source\Dota 2"), String.Format(@"root\resource\flash3\images\{0}", ValvePackage)),
+                        Arguments = string.Format(" -p \"{0}\" -d \"{1}\" -e \"{2}\"", Path.Combine(source_path, @"dota\pak01_dir.vpk"), Path.Combine(Globals.Paths.Assets, @"Source\Dota 2"), string.Format(@"root\resource\flash3\images\{0}", ValvePackage)),
                         WindowStyle = ProcessWindowStyle.Hidden,
                         UseShellExecute = false,
                         RedirectStandardOutput = true,

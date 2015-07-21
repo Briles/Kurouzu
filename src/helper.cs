@@ -1,22 +1,19 @@
-using System;
-using System.IO;
-using System.Linq;
-using System.Drawing;
-using System.Diagnostics;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-using System.Text.RegularExpressions;
-//
 using Blazinix.INI;
 using Kurouzu.Args;
 using Kurouzu.Defaults;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Drawing;
+using System.IO;
+using System.Linq;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace Kurouzu.Helpers
 {
     public static class Helper
     {
-        // private static IEnumerable<object> dirs;
-
         //
         //
         public static void BatchFileRename(string game)
@@ -148,7 +145,7 @@ namespace Kurouzu.Helpers
                 {
                     StartInfo = new ProcessStartInfo {
                         FileName = "pngout.exe",
-                        Arguments = String.Format(" /q {0}", @png),
+                        Arguments = string.Format(" /q {0}", @png),
                         WindowStyle = ProcessWindowStyle.Hidden,
                         UseShellExecute = false,
                         RedirectStandardOutput = false,
@@ -159,7 +156,7 @@ namespace Kurouzu.Helpers
                 {
                     StartInfo = new ProcessStartInfo {
                         FileName = "truepng.exe",
-                        Arguments = String.Format(" -o4 /quiet {0}", @png),
+                        Arguments = string.Format(" -o4 /quiet {0}", @png),
                         WindowStyle = ProcessWindowStyle.Hidden,
                         UseShellExecute = false,
                         RedirectStandardOutput = false,
@@ -170,7 +167,7 @@ namespace Kurouzu.Helpers
                 {
                     StartInfo = new ProcessStartInfo {
                         FileName = "deflopt.exe",
-                        Arguments = String.Format(" /s {0}", @png),
+                        Arguments = string.Format(" /s {0}", @png),
                         WindowStyle = ProcessWindowStyle.Hidden,
                         UseShellExecute = false,
                         RedirectStandardOutput = false,
@@ -231,7 +228,7 @@ namespace Kurouzu.Helpers
                     // Get the images to scale
                     string[] InputImages;
                     string StartPath = Path.Combine(Globals.Paths.Assets, ScalingJob.Path, "Source");
-                    if (String.IsNullOrEmpty(ScalingJob.ExcludePattern))
+                    if (string.IsNullOrEmpty(ScalingJob.ExcludePattern))
                     {
                         InputImages = Directory.GetFiles(StartPath, ScalingJob.SearchPattern, SearchOption.AllDirectories);
                     }
@@ -264,7 +261,7 @@ namespace Kurouzu.Helpers
                                         StartInfo = new ProcessStartInfo
                                         {
                                             FileName = "identify.exe",
-                                            Arguments = String.Format(" -format %wx%h {0}", InputImage),
+                                            Arguments = string.Format(" -format %wx%h {0}", InputImage),
                                             WindowStyle = ProcessWindowStyle.Hidden,
                                             UseShellExecute = false,
                                             RedirectStandardOutput = true,
@@ -277,10 +274,10 @@ namespace Kurouzu.Helpers
                                 else
                                 {
                                     Bitmap Bitmap = new Bitmap(InputImage);
-                                    InputDimensions = String.Format("{0}x{1}", Bitmap.Width, Bitmap.Height);
+                                    InputDimensions = string.Format("{0}x{1}", Bitmap.Width, Bitmap.Height);
                                     Bitmap.Dispose();
                                 }
-                                string OutputName = String.Format("{0}.png", Path.GetFileNameWithoutExtension(InputImage));
+                                string OutputName = string.Format("{0}.png", Path.GetFileNameWithoutExtension(InputImage));
                                 string DestinationPath = Path.Combine(Globals.Paths.Assets, ScalingJob.Path, OutputWidth, OutputName);
                                 // Only convert when the sizes are different otherwise just copy
                                 if (InputDimensions != OutputDimension)
@@ -346,7 +343,7 @@ namespace Kurouzu.Helpers
                                         StartInfo = new ProcessStartInfo
                                         {
                                             FileName = "magick.exe",
-                                            Arguments = String.Format(" \"{0}\" -colorspace RGB -size \"{1}\" +sigmoidal-contrast 11.6933 -define filter:filter=Sinc -define filter:window=Jinc -define filter:lobes=3 {2} -resize \"{3}\"! -sigmoidal-contrast 11.6933 -colorspace sRGB \"{4}\"", InputImage, InputDimensions, ImageMagickSettings, OutputDimension, DestinationPath),
+                                            Arguments = string.Format(" \"{0}\" -colorspace RGB -size \"{1}\" +sigmoidal-contrast 11.6933 -define filter:filter=Sinc -define filter:window=Jinc -define filter:lobes=3 {2} -resize \"{3}\"! -sigmoidal-contrast 11.6933 -colorspace sRGB \"{4}\"", InputImage, InputDimensions, ImageMagickSettings, OutputDimension, DestinationPath),
                                             WindowStyle = ProcessWindowStyle.Hidden,
                                             UseShellExecute = false,
                                             RedirectStandardOutput = false,
@@ -441,7 +438,7 @@ namespace Kurouzu.Helpers
             {
                 StartInfo = new ProcessStartInfo {
                     FileName = "swfdump.exe",
-                    Arguments = String.Format("\"{0}\" -u", inputPath),
+                    Arguments = string.Format("\"{0}\" -u", inputPath),
                     WindowStyle = ProcessWindowStyle.Hidden,
                     UseShellExecute = false,
                     RedirectStandardOutput = true,
@@ -471,7 +468,7 @@ namespace Kurouzu.Helpers
                     {
                         StartInfo = new ProcessStartInfo {
                             FileName = "swfextract.exe",
-                            Arguments = String.Format(" -p \"{0}\" \"{1}\" -o \"{2}\"", SWFID, inputPath, DestinationPath),
+                            Arguments = string.Format(" -p \"{0}\" \"{1}\" -o \"{2}\"", SWFID, inputPath, DestinationPath),
                             WindowStyle = ProcessWindowStyle.Hidden,
                             UseShellExecute = false,
                             RedirectStandardOutput = false,
@@ -496,7 +493,7 @@ namespace Kurouzu.Helpers
                     RecursionFlag = SearchOption.AllDirectories;
                 }
                 string[] FilesFound;
-                if (String.IsNullOrEmpty(CopyJob.ExcludePattern))
+                if (string.IsNullOrEmpty(CopyJob.ExcludePattern))
                 {
                     FilesFound = Directory.GetFiles(CopyJob.Path, CopyJob.SearchPattern, RecursionFlag);
                 }

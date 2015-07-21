@@ -38,7 +38,7 @@ namespace Kurouzu.Games
                         StartInfo = new ProcessStartInfo
                         {
                             FileName = "MPQEditor.exe",
-                            Arguments = String.Format(" e \"{0}\" \"{1}\" \"{2}\" /fp", Package, Filter, Destination),
+                            Arguments = string.Format(" e \"{0}\" \"{1}\" \"{2}\" /fp", Package, Filter, Destination),
                             WindowStyle = ProcessWindowStyle.Hidden,
                             UseShellExecute = false,
                             RedirectStandardOutput = true,

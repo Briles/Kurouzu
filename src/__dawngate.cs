@@ -34,7 +34,7 @@ namespace Kurouzu.Games
                 {
                     StartInfo = new ProcessStartInfo {
                         FileName = "quickbms.exe",
-                        Arguments = String.Format(" -o -. -Y -f \"*_full.dds,*_portrait.dds,*_purchase.dds\" \"{0}\" \"{1}\" \"{2}\"", QuickBMSSnapFile, SourcePackage, Path.Combine(Globals.Paths.Assets, @"Source\Dawngate")),
+                        Arguments = string.Format(" -o -. -Y -f \"*_full.dds,*_portrait.dds,*_purchase.dds\" \"{0}\" \"{1}\" \"{2}\"", QuickBMSSnapFile, SourcePackage, Path.Combine(Globals.Paths.Assets, @"Source\Dawngate")),
                         WindowStyle = ProcessWindowStyle.Hidden,
                         UseShellExecute = false,
                         RedirectStandardOutput = true,
@@ -52,7 +52,7 @@ namespace Kurouzu.Games
             {
                 StartInfo = new ProcessStartInfo {
                     FileName = "quickbms.exe",
-                    Arguments = String.Format(" -o -. -Y -f \"*advanced_*.dds,*basic_*.dds,*legendary_*.dds,*consumable_*.dds,*Spell_*.dds,*inventory_perk_shape_*.dds,*perk_gem_*.dds\" \"{0}\" \"{1}\" \"{2}\"", QuickBMSSnapFile, Path.Combine(SourcePath, @"Data\UI_Icons.snap"), Path.Combine(Globals.Paths.Assets, @"Source\Dawngate")),
+                    Arguments = string.Format(" -o -. -Y -f \"*advanced_*.dds,*basic_*.dds,*legendary_*.dds,*consumable_*.dds,*Spell_*.dds,*inventory_perk_shape_*.dds,*perk_gem_*.dds\" \"{0}\" \"{1}\" \"{2}\"", QuickBMSSnapFile, Path.Combine(SourcePath, @"Data\UI_Icons.snap"), Path.Combine(Globals.Paths.Assets, @"Source\Dawngate")),
                     WindowStyle = ProcessWindowStyle.Hidden,
                     UseShellExecute = false,
                     RedirectStandardOutput = true,

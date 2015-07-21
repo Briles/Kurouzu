@@ -33,7 +33,7 @@ namespace Kurouzu.Games
                 StartInfo = new ProcessStartInfo
                 {
                     FileName = "CascView.exe",
-                    Arguments = String.Format(" \"{0}\" \"*.dds\" \"{1}\" /fp", GameData, DestinationPath),
+                    Arguments = string.Format(" \"{0}\" \"*.dds\" \"{1}\" /fp", GameData, DestinationPath),
                     WindowStyle = ProcessWindowStyle.Hidden,
                     UseShellExecute = false,
                     RedirectStandardOutput = true,

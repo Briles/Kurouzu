@@ -30,7 +30,7 @@ namespace Kurouzu.Games
                 {
                     StartInfo = new ProcessStartInfo {
                         FileName = "umodel.exe",
-                        Arguments = String.Format(" -export -uncook -groups -nomesh -noanim -nostat -out=\"{0}\" \"{1}\" -path=\"{2}\"", Path.Combine(Globals.Paths.Assets, @"Source\Smite"), Path.GetFileName(Package), Path.Combine(source_path, @"BattleGame\CookedPC\GUI\Icons")),
+                        Arguments = string.Format(" -export -uncook -groups -nomesh -noanim -nostat -out=\"{0}\" \"{1}\" -path=\"{2}\"", Path.Combine(Globals.Paths.Assets, @"Source\Smite"), Path.GetFileName(Package), Path.Combine(source_path, @"BattleGame\CookedPC\GUI\Icons")),
                         WindowStyle = ProcessWindowStyle.Hidden,
                         UseShellExecute = false,
                         RedirectStandardOutput = true,
