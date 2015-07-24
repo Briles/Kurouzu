@@ -7,7 +7,7 @@
     <OutputType>Exe</OutputType>
     <NoStandardLibraries>false</NoStandardLibraries>
     <AssemblyName>Kurouzu</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
@@ -79,13 +79,17 @@
     <UseVSHostingProcess>false</UseVSHostingProcess>
     <DocumentationFile>
     </DocumentationFile>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>Graphics\icon.ico</ApplicationIcon>
   </PropertyGroup>
+  <PropertyGroup>
+    <NoWin32Manifest>true</NoWin32Manifest>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="CommandLine, Version=1.9.71.2, Culture=neutral, PublicKeyToken=de6f01bd326f8c32, processorArchitecture=MSIL">
-      <HintPath>packages\CommandLineParser.1.9.71\lib\net40\CommandLine.dll</HintPath>
+      <HintPath>packages\CommandLineParser.1.9.71\lib\net45\CommandLine.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="ICSharpCode.SharpZipLib, Version=0.86.0.518, Culture=neutral, PublicKeyToken=1b03e6acf1164f73, processorArchitecture=MSIL">
@@ -102,8 +106,6 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
-    <None Include=".gitattributes" />
-    <None Include=".gitignore" />
     <None Include=".git\COMMIT_EDITMSG" />
     <None Include=".git\config" />
     <None Include=".git\description" />
@@ -207,40 +209,10 @@
     <None Include=".git\refs\heads\master" />
     <None Include=".git\refs\remotes\origin\master" />
     <None Include="app.config" />
-    <None Include="data\Dawngate\Abilities.csv" />
-    <None Include="data\Dawngate\Items.csv" />
-    <None Include="data\Dawngate\Shapers.csv" />
-    <None Include="data\Dawngate\Sparks.csv" />
-    <None Include="data\Dawngate\Spells.csv" />
-    <None Include="data\Dawngate\Spiritstones.csv" />
-    <None Include="data\Dota 2\Heroes.csv" />
-    <None Include="data\Dota 2\Items.csv" />
-    <None Include="data\Dota 2\Spells.csv" />
-    <None Include="data\Heroes of Newerth\Abilities.csv" />
-    <None Include="data\Heroes of Newerth\Heroes.csv" />
-    <None Include="data\Heroes of Newerth\Items.csv" />
-    <None Include="data\League of Legends\Abilities.csv" />
-    <None Include="data\League of Legends\Champions.csv" />
-    <None Include="data\League of Legends\Items.csv" />
-    <None Include="data\League of Legends\Masteries.csv" />
-    <None Include="data\League of Legends\Runes.csv" />
-    <None Include="data\League of Legends\Spells.csv" />
-    <None Include="data\Smite\Abilities.csv" />
-    <None Include="data\Smite\Gods.csv" />
-    <None Include="data\Smite\Items.csv" />
-    <None Include="data\StarCraft II\Abilities.csv" />
-    <None Include="data\StarCraft II\Buildings.csv" />
-    <None Include="data\StarCraft II\UI.csv" />
-    <None Include="data\StarCraft II\Units.csv" />
-    <None Include="data\StarCraft II\Upgrades.csv" />
-    <None Include="Graphics\Logo\logo.ai" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Content Include=".git\ms-persist.xml" />
-    <Content Include="Graphics\icon.ico" />
-    <Content Include="Graphics\Logo\logo.png" />
-    <Content Include="icon.ico" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -253,15 +225,20 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="src\swf\DefineBitsLossless2.cs" />
+    <Compile Include="src\swf\Rect.cs" />
+    <Compile Include="src\swf\SWFFile.cs" />
+    <Compile Include="src\swf\SWFReader.cs" />
+    <Compile Include="src\swf\Tag.cs" />
     <Compile Include="src\vars.cs" />
-    <Compile Include="src\__dawngate.cs" />
-    <Compile Include="src\__dota_2.cs" />
-    <Compile Include="src\__heroes_of_newerth.cs" />
-    <Compile Include="src\__heroes_of_the_storm.cs" />
-    <Compile Include="src\__league_of_legends.cs" />
-    <Compile Include="src\__smite.cs" />
-    <Compile Include="src\__starcraft_ii.cs" />
-    <Compile Include="src\__strife.cs" />
+    <Compile Include="src\games\dawngate.cs" />
+    <Compile Include="src\games\dota_2.cs" />
+    <Compile Include="src\games\heroes_of_newerth.cs" />
+    <Compile Include="src\games\heroes_of_the_storm.cs" />
+    <Compile Include="src\games\league_of_legends.cs" />
+    <Compile Include="src\games\smite.cs" />
+    <Compile Include="src\games\starcraft_ii.cs" />
+    <Compile Include="src\games\strife.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include=".git\lfs\objects\logs\" />
@@ -269,11 +246,6 @@
     <Folder Include=".git\objects\info\" />
     <Folder Include=".git\objects\pack\" />
     <Folder Include=".git\refs\tags\" />
-    <Folder Include="data\Counter-Strike Global Offensive\" />
-    <Folder Include="data\Hearthstone\" />
-    <Folder Include="data\Heroes of the Storm\" />
-    <Folder Include="data\Strife\" />
-    <Folder Include="data\Unreal Tournament 4\" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.5.1">

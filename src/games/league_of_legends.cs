@@ -26,14 +26,14 @@ namespace Kurouzu.Games
             INIFile INI = new INIFile(Globals.Paths.ConfigurationFile);
             string SourcePath = INI.INIReadValue("Game Paths", "League of Legends");
             // Get the source
-            string[] NeededSWFs = {"ImagePack_spells.swf","ImagePack_masteryIcons.swf","ImagePack_items.swf"};
-            foreach(string NeededSWF in Directory.GetFiles(SourcePath, "ImagePack_*.swf", SearchOption.AllDirectories).Where(f => NeededSWFs.Contains(Path.GetFileName(f), StringComparer.OrdinalIgnoreCase)).ToList())
+            string[] NeededSWFs = { "ImagePack_spells.swf", "ImagePack_masteryIcons.swf", "ImagePack_items.swf" };
+            foreach (string NeededSWF in Directory.GetFiles(SourcePath, "ImagePack_*.swf", SearchOption.AllDirectories).Where(f => NeededSWFs.Contains(Path.GetFileName(f), StringComparer.OrdinalIgnoreCase)).ToList())
             {
-                File.Copy(NeededSWF, Path.Combine(Globals.Paths.Assets,"Source","League of Legends",Path.GetFileName(NeededSWF)) , true);
-                Console.WriteLine("Copying {0}", Path.GetFileName(NeededSWF));
+                File.Copy(NeededSWF, Path.Combine(Globals.Paths.Assets, "Source", "League of Legends", Path.GetFileName(NeededSWF)), true);
+                Console.WriteLine("Copying {0}", NeededSWF);
             }
             // Extract the SWFs
-            foreach(string swf in Directory.GetFiles(Path.Combine(Globals.Paths.Assets, "Source", "League of Legends"), "*.swf", SearchOption.AllDirectories).ToList())
+            foreach (string swf in Directory.GetFiles(Path.Combine(Globals.Paths.Assets, "Source", "League of Legends"), "*.swf", SearchOption.AllDirectories).ToList())
             {
                 string OutputPath = null;
                 switch (Path.GetFileName(swf))
@@ -52,6 +52,7 @@ namespace Kurouzu.Games
                 }
                 Helper.SWFExtract(swf, Path.Combine(Globals.Paths.Assets, OutputPath, "Source"));
             }
+
             // Copy the rest of the source assets
             // Copy jobs take the form { output path = string, { string start path, bool recursion flag, string search pattern, string exclude pattern } }
             const string SourceReleases = @"RADS\projects\lol_air_client\releases";

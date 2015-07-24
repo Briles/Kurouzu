@@ -1,12 +1,15 @@
 using Blazinix.INI;
+using FlashTools;
 using Kurouzu.Args;
 using Kurouzu.Defaults;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -105,7 +108,7 @@ namespace Kurouzu.Helpers
         public static void ValidateINI(string gameTitle)
         {
             const string INISection = "Game Paths";
-            Game game = Game.GetGamebyProp(gameTitle);
+            GameInfo game = GameInfo.GetGamebyProp(gameTitle);
             INIFile INI = new INIFile(Globals.Paths.ConfigurationFile);
             if (!File.Exists(Globals.Paths.ConfigurationFile))
             {
@@ -431,54 +434,28 @@ namespace Kurouzu.Helpers
 
         //
         //
-        public static void SWFExtract(string inputPath, string outputPath)
+        public static void SWFExtract(string swfFile, string outputPath)
         {
-            List<string> SWFFileInfo = new List<string>();
-            var SWFDump = new Process
+            SWFFile swf = new SWFFile(swfFile);
+            foreach (DefineBitsLossless2 image in swf.PNGImages)
             {
-                StartInfo = new ProcessStartInfo {
-                    FileName = "swfdump.exe",
-                    Arguments = string.Format("\"{0}\" -u", inputPath),
-                    WindowStyle = ProcessWindowStyle.Hidden,
-                    UseShellExecute = false,
-                    RedirectStandardOutput = true,
-                    CreateNoWindow = true
-                }
-            };
-            SWFDump.Start();
-            while (!SWFDump.StandardOutput.EndOfStream)
-            {
-                string line = SWFDump.StandardOutput.ReadLine();
-                SWFFileInfo.Add(line);
+                Console.WriteLine("Extracting {0}", image.SymbolName);
+
+                string destinationPath = Path.Combine(outputPath, string.Format("{0}.png", image.SymbolName));
+
+                byte[] BitMapPixelData = new byte[image.BitmapArea];
+                BitMapPixelData = image.BitmapPixelData.ToArray();
+
+                GCHandle pinnedArray = GCHandle.Alloc(BitMapPixelData, GCHandleType.Pinned);
+                IntPtr pointer = pinnedArray.AddrOfPinnedObject();
+
+                Bitmap newBitmap = new Bitmap(image.BitmapWidth, image.BitmapHeight, image.BitmapStride, PixelFormat.Format32bppPArgb, pointer);
+                pinnedArray.Free();
+
+                newBitmap.Save(destinationPath, ImageFormat.Png);
+                newBitmap.Dispose();
             }
-            Regex IDRegex = new Regex("^.*id ");
-            Regex ImageRegex = new Regex(" image.*$");
-            Regex ImagePackRegex = new Regex("ImagePack_.*_Embeds__e_");
-            string[] ParsedPNGs = (SWFFileInfo.Where(info => info.Trim().Contains("DEFINEBITSLOSSLESS2")).Select(info => ImageRegex.Replace(IDRegex.Replace(info.Trim(),""),""))).ToArray();
-            string[] SWFPairs = (SWFFileInfo.Where(info => info.Trim().Contains("exports")).Select(info => (ImagePackRegex.Replace(info.Replace("exports ","").Replace(" as ",",").Replace("\"",""),"")).Trim())).ToArray();
-            foreach (string SWFPair in SWFPairs)
-            {
-                string[] SWFString = SWFPair.Split(',');
-                string SWFID = SWFString[0];
-                string SWFName = SWFString[1];
-                if (ParsedPNGs.Contains(SWFID))
-                {
-                    string DestinationPath = outputPath + "\\" + SWFName + ".png";
-                    var SWFExtract = new Process
-                    {
-                        StartInfo = new ProcessStartInfo {
-                            FileName = "swfextract.exe",
-                            Arguments = string.Format(" -p \"{0}\" \"{1}\" -o \"{2}\"", SWFID, inputPath, DestinationPath),
-                            WindowStyle = ProcessWindowStyle.Hidden,
-                            UseShellExecute = false,
-                            RedirectStandardOutput = false,
-                            CreateNoWindow = true
-                        }
-                    };
-                    SWFExtract.Start();
-                    Console.WriteLine("Extracting {0}", SWFName);
-                }
-            }
+            swf.Close();
         }
 
         //

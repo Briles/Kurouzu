@@ -7,7 +7,7 @@ using System.Reflection;
 namespace Kurouzu.Defaults
 {
 
-    public class Game
+    public class GameInfo
     {
         public string Title { get; set; }
         public string Binary { get; set; }
@@ -15,7 +15,7 @@ namespace Kurouzu.Defaults
         public int Leaf { get; set; }
         public Dictionary<string, string> Dimensions { get; set; }
 
-        public static Game GetGamebyProp(string title)
+        public static GameInfo GetGamebyProp(string title)
         {
             return Globals.Games.First(item => string.Equals(item.Title, title, StringComparison.OrdinalIgnoreCase));
         }
@@ -35,8 +35,8 @@ namespace Kurouzu.Defaults
             public static readonly string[] Arguments = Environment.GetCommandLineArgs();
         }
 
-        public static readonly List<Game> Games = new List<Game>() {
-            new Game {
+        public static readonly List<GameInfo> Games = new List<GameInfo>() {
+            new GameInfo {
                 Title = "Dawngate",
                 Binary = "Dawngate.exe",
                 Source = @"C:\Program Files (x86)\Electronic Arts\Dawngate\game\",
@@ -51,7 +51,7 @@ namespace Kurouzu.Defaults
                     { "Spiritstones", "64x64" }
                 }
             },
-            new Game { 
+            new GameInfo { 
                 Title = "Dota 2",
                 Binary = "dota.exe",
                 Source = @"C:\Program Files (x86)\Steam\SteamApps\common\dota 2 beta\",
@@ -64,14 +64,14 @@ namespace Kurouzu.Defaults
                     { "Spells", "128x128" }
                 }
             },
-            new Game {
+            new GameInfo {
                 Title = "Hearthstone",
                 Binary = "Hearthstone.exe",
                 Source = @"C:\Program Files (x86)\Hearthstone\",
                 Leaf = 1,
                 Dimensions = new Dictionary<string, string>() {}
             },
-            new Game {
+            new GameInfo {
                 Title = "Heroes of Newerth",
                 Binary = "hon.exe",
                 Source = @"C:\Program Files (x86)\Heroes of Newerth\",
@@ -82,7 +82,7 @@ namespace Kurouzu.Defaults
                     { "Items", "128x128" }
                 }
             },
-            new Game {
+            new GameInfo {
                 Title = "Heroes of the Storm",
                 Binary = "Heroes of the Storm.exe",
                 Source = @"C:\Program Files (x86)\Heroes of the Storm\",
@@ -96,7 +96,7 @@ namespace Kurouzu.Defaults
                     { "Talents", "76x76" }
                 }
             },
-            new Game {
+            new GameInfo {
                 Title = "League of Legends",
                 Binary = "lol.launcher.exe",
                 Source = @"C:\Program Files (x86)\League of Legends\",
@@ -112,7 +112,7 @@ namespace Kurouzu.Defaults
                     { "Spells", "64x64" }
                 }
             },
-            new Game {
+            new GameInfo {
                 Title = "Smite",
                 Binary = "Smite.exe",
                 Source = @"C:\Program Files (x86)\Hi-Rez Studios\HiRezGames\smite\",
@@ -124,7 +124,7 @@ namespace Kurouzu.Defaults
                     { "Items", "128x128" }
                 }
             },
-            new Game {
+            new GameInfo {
                 Title = "StarCraft II",
                 Binary = "StarCraft II.exe",
                 Source = @"C:\Program Files (x86)\StarCraft II\",
@@ -138,7 +138,7 @@ namespace Kurouzu.Defaults
                     { "Upgrades", "64x64" }
                 }
             },
-            new Game {
+            new GameInfo {
                 Title = "Strife",
                 Binary = "strife.exe",
                 Source = @"C:\Program Files (x86)\Steam\SteamApps\common\Strife\", 

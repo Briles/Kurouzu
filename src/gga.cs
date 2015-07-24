@@ -24,7 +24,7 @@ namespace Kurouzu.Main
             if (Parser.Default.ParseArgumentsStrict(args, options))
             {
                 Console.WriteLine("\nRunning in {0} from {1}\n", Globals.Paths.Work, Globals.Paths.Home);
-                string proper = Game.GetGamebyProp(options.InputGame.Trim()).Title;
+                string proper = GameInfo.GetGamebyProp(options.InputGame.Trim()).Title;
                 string game = (proper).Replace(" ", "");
                 Helper.ValidateINI(proper);
                 Helper.PreCleanup(proper);

@@ -34,7 +34,6 @@ Kurouzu only requires dependencies for the games you want to process.
 |:-----------------:|:----------------------------------------------------------------------------------------------------------------:|
 | Dawngate          | [QuickBMS](http://aluigi.altervista.org/quickbms.htm/ "QuickBMS") `quickbms_4gb_files.exe`                       |
 | Dota 2            | [HLExtract](http://nemesis.thewavelength.net/index.php?p=35 "HLExtract") `hlextract.exe & SDL2.dll (x64 or x86)` |
-| League of Legends | [SWFExtract](http://www.swftools.org/ "SWFExtract") `swfextract.exe & swfdump.exe`                               |
 | Smite             | [Umodel](http://www.gildor.org/en/projects/umodel "Umodel") `umodel.exe`                                         |
 | StarCraft II      | [MPQ Editor](http://www.zezula.net/en/mpq/download.html "MPQ Editor") `MPQEditor.exe`                            |
 

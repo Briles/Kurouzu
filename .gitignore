@@ -10,6 +10,7 @@ conf.ini
 build.ps1
 
 /ignore/
+/lib/Private/
 Graphics/Logo/*.ai
 
 ## Ignore Visual Studio temporary files, build results, and

@@ -111,26 +111,26 @@ namespace Kurouzu.Games
 
             // Copy the rest of the source assets
             // Copy jobs take the form { output path = string, { string start path, bool recursion flag, string search pattern, string exclude pattern } }
-            //List<CopyJob> CopyJobs = new List<CopyJob>
-            //{
-            //    new CopyJob(Abilities, Path.Combine(SourceAssets, @"00000000\heroes\"), true, "*ability*.dds", null),
-            //    new CopyJob(Heroes, Path.Combine(SourceAssets, @"00000000\heroes\*\*\"), false, "*.dds", "*ability*.dds"),
-            //    new CopyJob(Items, Path.Combine(SourceAssets, @"00000000\items\"), true, "*.dds", null)
-            //};
-            //Helper.BatchFileCopy(CopyJobs);
+            List<CopyJob> CopyJobs = new List<CopyJob>
+            {
+                new CopyJob(Abilities, Path.Combine(Globals.Paths.Assets, @"00000000\heroes\"), true, "*ability*.dds", null),
+                new CopyJob(Heroes, Path.Combine(Globals.Paths.Assets, @"00000000\heroes\*\*\"), false, "*.dds", "*ability*.dds"),
+                new CopyJob(Items, Path.Combine(Globals.Paths.Assets, @"00000000\items\"), true, "*.dds", null)
+            };
+            Helper.BatchFileCopy(CopyJobs);
 
-            //// Rename all the things
-            //Helper.BatchFileRename("Heroes of Newerth");
+            // Rename all the things
+            Helper.BatchFileRename("Heroes of Newerth");
 
-            //// Scale all the things
-            //// Scaling jobs take the form { string start path, string search pattern, string exclude pattern }
-            //List<ScalingJob> ScalingJobs = new List<ScalingJob>
-            //{
-            //    new ScalingJob(Heroes, "*.dds"),
-            //    new ScalingJob(Abilities, "*.dds"),
-            //    new ScalingJob(Items, "*.dds")
-            //};
-            //Helper.BatchIMScale(ScalingJobs);
+            // Scale all the things
+            // Scaling jobs take the form { string start path, string search pattern, string exclude pattern }
+            List<ScalingJob> ScalingJobs = new List<ScalingJob>
+            {
+                new ScalingJob(Heroes, "*.dds"),
+                new ScalingJob(Abilities, "*.dds"),
+                new ScalingJob(Items, "*.dds")
+            };
+            Helper.BatchIMScale(ScalingJobs);
         }
     }
 }
