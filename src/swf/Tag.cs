@@ -4,14 +4,14 @@ using System.IO;
 using System.IO.Compression;
 using System.Text.RegularExpressions;
 
-namespace FlashTools
+namespace SWFTools
 {
     public class Tag
     {
         private ushort code;
         private ulong length;
         private DefineBitsLossless2 png = new DefineBitsLossless2();
-        private Dictionary<ulong, string> symbols = new Dictionary<ulong, string>();
+        private Dictionary<short, string> symbols = new Dictionary<short, string>();
 
         #region Properties
 
@@ -30,7 +30,7 @@ namespace FlashTools
             get { return png; }
         }
 
-        public Dictionary<ulong, string> Symbols
+        public Dictionary<short, string> Symbols
         {
             get { return symbols; }
         }
@@ -42,32 +42,25 @@ namespace FlashTools
         public Tag(SWFReader swf)
         {
             ushort tagInfo = swf.ReadUI16();
-            this.code = (ushort)(tagInfo >> 6);
-            this.length = (ulong)(tagInfo & 0x3f);
+            code = (ushort)(tagInfo >> 6);
+            length = (ulong)(tagInfo & 0x3f);
 
             // Is this a long data block?
-            if (this.Length == 0x3f)
+            if (Length == 0x3f)
             {
-                this.length = swf.ReadUI32();
+                length = swf.ReadUI32();
             }
 
-            switch (this.Code)
+            switch (Code)
             {
                 // DefineBitsLossless2
                 case 36:
-                    ulong remainingLength = this.Length;
+                    ulong remainingLength = Length - 7;
 
-                    this.png.CharacterID = swf.ReadUI16();
-                    remainingLength -= sizeof(UInt16);
-
-                    this.png.BitmapFormat = swf.ReadUI8();
-                    remainingLength -= sizeof(Byte);
-
-                    this.png.BitmapWidth = swf.ReadUI16();
-                    remainingLength -= sizeof(UInt16);
-
-                    this.png.BitmapHeight = swf.ReadUI16();
-                    remainingLength -= sizeof(UInt16);
+                    png.CharacterID = swf.ReadUI16();
+                    png.BitmapFormat = swf.ReadUI8();
+                    png.BitmapWidth = swf.ReadUI16();
+                    png.BitmapHeight = swf.ReadUI16();
 
                     List<byte> CompressedPixelData = new List<byte>();
                     for (ulong b = 0; b < remainingLength; b++)
@@ -84,33 +77,33 @@ namespace FlashTools
                     DeflateStream inflatedStream = new DeflateStream(PixelStream, CompressionMode.Decompress);
                     PixelStream = inflatedStream;
 
-                    for (long c = 0; c < this.png.BitmapArea; c++)
+                    for (long c = 0; c < png.BitmapArea; c++)
                     {
                         byte alpha = Convert.ToByte(PixelStream.ReadByte());
                         byte red = Convert.ToByte(PixelStream.ReadByte());
                         byte green = Convert.ToByte(PixelStream.ReadByte());
                         byte blue = Convert.ToByte(PixelStream.ReadByte());
-                        this.png.BitmapPixelData.AddRange(new byte[] { blue, green, red, alpha });
+                        png.BitmapPixelData.AddRange(new byte[] { blue, green, red, alpha });
                     }
                     break;
 
                 // SymbolClass
                 case 76:
-                    ulong NumSymbols = swf.ReadUI16();
-                    for (ulong index = 0; index < NumSymbols; index++)
+                    ushort NumSymbols = swf.ReadUI16();
+                    for (ushort s = 0; s < NumSymbols; s++)
                     {
-                        ulong symbolid = swf.ReadUI16();
-                        string symbolname = swf.ReadSTRING();
-                        if (!symbols.ContainsKey(symbolid)) {
-                            string cleanSymbolName = Regex.Replace(symbolname, @"ImagePack_((items)|(masteryIcons)|(spells))?_Embeds__e_", "");
-                            this.symbols.Add(symbolid, cleanSymbolName);
+                        short tagID = swf.ReadSI16();
+                        string tagName = swf.ReadSTRING();
+                        string prettyName = Regex.Replace(tagName, @"ImagePack_((items)|(masteryIcons)|(spells))_Embeds__e_(Spell_)?", "");
+                        if (!Symbols.ContainsKey(tagID)) {
+                            Symbols[tagID] = prettyName;
                         }
                     }
                     break;
 
                 // Everything Else
                 default:
-                    for (ulong index = 0; index < this.Length; index++)
+                    for (ulong index = 0; index < Length; index++)
                     {
                         swf.Stream.ReadByte();
                     }
@@ -120,8 +113,6 @@ namespace FlashTools
 
         #endregion
 
-        // Return the tag type
-        // Special thanks to Alexis: http://sswf.sourceforge.net/SWFalexref.html#table_of_swf_tags
         public static string GetType(ushort id)
         {
             string result = "(unknown)";

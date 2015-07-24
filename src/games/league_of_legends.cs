@@ -1,6 +1,7 @@
 using Blazinix.INI;
 using Kurouzu.Defaults;
 using Kurouzu.Helpers;
+using SWFTools;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -33,10 +34,10 @@ namespace Kurouzu.Games
                 Console.WriteLine("Copying {0}", NeededSWF);
             }
             // Extract the SWFs
-            foreach (string swf in Directory.GetFiles(Path.Combine(Globals.Paths.Assets, "Source", "League of Legends"), "*.swf", SearchOption.AllDirectories).ToList())
+            foreach (string swfFile in Directory.GetFiles(Path.Combine(Globals.Paths.Assets, "Source", "League of Legends"), "*.swf", SearchOption.AllDirectories).ToList())
             {
                 string OutputPath = null;
-                switch (Path.GetFileName(swf))
+                switch (Path.GetFileName(swfFile))
                 {
                     case "ImagePack_items.swf":
                         OutputPath = Items;
@@ -50,7 +51,8 @@ namespace Kurouzu.Games
                     default:
                         break;
                 }
-                Helper.SWFExtract(swf, Path.Combine(Globals.Paths.Assets, OutputPath, "Source"));
+                SWFFile swf = new SWFFile(swfFile);
+                swf.ExtractImages(Path.Combine(Globals.Paths.Assets, OutputPath, "Source"));
             }
 
             // Copy the rest of the source assets

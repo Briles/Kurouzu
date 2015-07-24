@@ -1,5 +1,5 @@
 using Blazinix.INI;
-using FlashTools;
+using SWFTools;
 using Kurouzu.Args;
 using Kurouzu.Defaults;
 using System;
@@ -22,7 +22,7 @@ namespace Kurouzu.Helpers
         public static void BatchFileRename(string game)
         {
             string[] CSVs = Directory.GetFiles(Path.Combine(Globals.Paths.Data, game), "*.csv", SearchOption.AllDirectories).ToArray();
-            Parallel.ForEach(CSVs, CSV =>
+            foreach (string CSV in CSVs)
             {
                 List<string> RenamePairsNotUsed = new List<string>();
                 string Directory = Path.GetFileNameWithoutExtension(CSV);
@@ -82,7 +82,7 @@ namespace Kurouzu.Helpers
                         File.AppendAllText(NotUsedLogPath, NotUsedLogContent, System.Text.Encoding.UTF8);
                     }
                 }
-            });
+            }
         }
 
         //
@@ -434,32 +434,6 @@ namespace Kurouzu.Helpers
 
         //
         //
-        public static void SWFExtract(string swfFile, string outputPath)
-        {
-            SWFFile swf = new SWFFile(swfFile);
-            foreach (DefineBitsLossless2 image in swf.PNGImages)
-            {
-                Console.WriteLine("Extracting {0}", image.SymbolName);
-
-                string destinationPath = Path.Combine(outputPath, string.Format("{0}.png", image.SymbolName));
-
-                byte[] BitMapPixelData = new byte[image.BitmapArea];
-                BitMapPixelData = image.BitmapPixelData.ToArray();
-
-                GCHandle pinnedArray = GCHandle.Alloc(BitMapPixelData, GCHandleType.Pinned);
-                IntPtr pointer = pinnedArray.AddrOfPinnedObject();
-
-                Bitmap newBitmap = new Bitmap(image.BitmapWidth, image.BitmapHeight, image.BitmapStride, PixelFormat.Format32bppPArgb, pointer);
-                pinnedArray.Free();
-
-                newBitmap.Save(destinationPath, ImageFormat.Png);
-                newBitmap.Dispose();
-            }
-            swf.Close();
-        }
-
-        //
-        //
         public static void BatchFileCopy(List<CopyJob> copyJobs)
         {
             Parallel.ForEach(copyJobs, CopyJob =>
@@ -541,10 +515,10 @@ namespace Kurouzu.Helpers
 
         public CopyJob(string outputpath, params object[] splats)
         {
-            this.path = (string)splats[0];
-            this.recursion = (bool)splats[1];
-            this.searchpattern = (string)splats[2];
-            this.excludepattern = (string)splats[3];
+            path = (string)splats[0];
+            recursion = (bool)splats[1];
+            searchpattern = (string)splats[2];
+            excludepattern = (string)splats[3];
             this.outputpath = (string)outputpath;
         }
 

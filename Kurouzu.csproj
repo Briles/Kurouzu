@@ -226,7 +226,6 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="src\swf\DefineBitsLossless2.cs" />
-    <Compile Include="src\swf\Rect.cs" />
     <Compile Include="src\swf\SWFFile.cs" />
     <Compile Include="src\swf\SWFReader.cs" />
     <Compile Include="src\swf\Tag.cs" />

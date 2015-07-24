@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using System.Text;
 
-namespace FlashTools
+namespace SWFTools
 {
     /// <summary>
     /// Class that makes it easier to read SWF (Flash) files
@@ -47,7 +47,7 @@ namespace FlashTools
 
         public SWFReader(Stream stream)
         {
-            this.Stream = stream;
+            Stream = stream;
         }
 
         #endregion
@@ -56,9 +56,9 @@ namespace FlashTools
 
         public byte ReadByte()
         {
-            int byteRead = this.stream.ReadByte();
+            int byteRead = stream.ReadByte();
 
-            this.bitPosition = 8;           // So that ReadBit() knows that we've "used" this byte already
+            bitPosition = 8;           // So that ReadBit() knows that we've "used" this byte already
 
             if (byteRead == -1)
             {
@@ -73,17 +73,17 @@ namespace FlashTools
             bool result;
 
             // Do we need another byte?
-            if (this.bitPosition > 7)
+            if (bitPosition > 7)
             {
-                this.currentByte = ReadByte();
-                this.bitPosition = 0;       // Reset, since we haven't "used" this byte yet
+                currentByte = ReadByte();
+                bitPosition = 0;       // Reset, since we haven't "used" this byte yet
             }
 
             // Read the current bit
-            result = ((this.currentByte & SWFReader.bitValues[(7 - bitPosition)]) != 0);
+            result = ((currentByte & SWFReader.bitValues[(7 - bitPosition)]) != 0);
 
             // Move to the next bit
-            this.bitPosition++;
+            bitPosition++;
 
             return result;
         }

@@ -1,70 +1,32 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using System.Text;
+using System.Runtime.InteropServices;
 
-// NOTE: To read compressed SWF files, you'll need to download SharpZipLib and add a reference to ICSharpCode.SharpZipLib.dll
-//       to this project. SharpZipLib can be downloaded from: http://www.icsharpcode.net/OpenSource/SharpZipLib/
-
-namespace FlashTools
+namespace SWFTools
 {
     public class SWFFile
     {
         private Stream stream = null;
         private SWFReader swf = null;
-        private string fileName = String.Empty;
-        private string signature = String.Empty;
-        private byte version = 0;
         private uint fileLength = 0;
-        private int frameWidth = 0;
-        private int frameHeight = 0;
-        private Single frameRate = 0.0F;
-        private ushort frameCount = 0;
+        private string fileName = null;
         public List<DefineBitsLossless2> pngImages = new List<DefineBitsLossless2>();
 
         #region Properties
-
-        public string FileName
-        {
-            get { return fileName; }
-        }
-
-        public string Signature
-        {
-            get { return signature; }
-        }
-
-        public byte Version
-        {
-            get { return version; }
-        }
 
         public uint FileLength
         {
             get { return fileLength; }
         }
 
-        public int FrameWidth
+        public string FileName
         {
-            get { return frameWidth; }
-        }
-
-        public int FrameHeight
-        {
-            get { return frameHeight; }
-        }
-
-        public Single FrameRate
-        {
-            get { return frameRate; }
-        }
-
-        public ushort FrameCount
-        {
-            get { return frameCount; }
+            get { return fileName; }
         }
 
         public List<DefineBitsLossless2> PNGImages
@@ -78,87 +40,70 @@ namespace FlashTools
 
         public SWFFile(string fileName)
         {
-            this.fileName = fileName;
-            Trace.WriteLine(String.Format("File        : {0}", this.FileName));
-
-            this.stream = new FileStream(this.fileName, FileMode.Open, FileAccess.Read);
-            this.swf = new SWFReader(this.stream);
+            this.fileName = Path.GetFileNameWithoutExtension(fileName);
+            stream = new FileStream(fileName, FileMode.Open, FileAccess.Read);
+            swf = new SWFReader(stream);
 
             if (ReadHeader())
             {
-                // Just identify the tag types
-                // ** This would normally be the place to start processing tags **
                 IdentifyTags();
             }
+
+            // Close the stream
+            stream.Close();
         }
 
         #endregion
 
         private void AddPNG(DefineBitsLossless2 image)
         {
-            this.PNGImages.Add(image);
+            PNGImages.Add(image);
         }
 
-        private void AddSymbol(Dictionary<ulong, string> symbollist)
+        private void MatchSymbols(Dictionary<short, string> symbols)
         {
-            foreach (var symbol in symbollist) {
-                DefineBitsLossless2 image = this.pngImages.FirstOrDefault(x => x.CharacterID == symbol.Key);
-                if (image != null) image.SymbolName = symbol.Value;
+            foreach (var symbol in symbols) {
+                var png = PNGImages.FirstOrDefault(x => x.CharacterID == symbol.Key);
+                if (png != null) png.SymbolName = symbol.Value;
             }
+
         }
 
         private bool ReadHeader()
         {
-            // Read file signature
-            this.signature = Encoding.ASCII.GetString(this.swf.ReadUI8(3));     // "FWS" or "CWS" for ZLIB compressed (v6.0 or later)
-            if (this.signature != "FWS" &&
-                this.signature != "CWS")
-            {
-                Trace.WriteLine("Not a valid SWF (Flash) file signature");
-                return false;
-            }
-            Trace.WriteLine(String.Format("Signature   : {0}", this.Signature));
+            // Signature
+            swf.ReadUI8(3);
 
-            // Read file version
-            this.version = this.swf.ReadUI8();
-            Trace.WriteLine(String.Format("Version     : {0}", this.Version));
+            // File version
+            swf.ReadUI8();
 
             // File length
-            this.fileLength = this.swf.ReadUI32();
-            Trace.WriteLine(String.Format("File length : {0} bytes", this.FileLength));
+            swf.ReadUI32();
 
-            // If the file is compressed, this is where the ZLIB decompression ("inflate") begins
-            if (this.signature == "CWS")
-            {
-                // Begin inflating stream
-                swf.Stream.ReadByte();
-                swf.Stream.ReadByte();
-
-                DeflateStream inflatedStream = new DeflateStream(this.stream, CompressionMode.Decompress);
-                swf.Stream = inflatedStream;
-            }
+            // The swf is Zlib compressed from here on
+            swf.Stream.ReadByte(); // The first two bytes are Zlib info
+            swf.Stream.ReadByte(); //
+            DeflateStream inflatedStream = new DeflateStream(stream, CompressionMode.Decompress);
+            swf.Stream = inflatedStream;
 
             // Frame size
-            Rect frameSize = new Rect(swf);
-            this.frameWidth = frameSize.XMax;
-            this.frameHeight = frameSize.YMax;
-            Trace.WriteLine(String.Format("Frame width : {0} twips ({1} pixels)", this.FrameWidth, this.FrameWidth / 20));
-            Trace.WriteLine(String.Format("Frame height: {0} twips ({1} pixels)", this.FrameHeight, this.FrameHeight / 20));
+            int nBits = (int) swf.ReadUB(5);
+            swf.ReadSB(nBits);
+            swf.ReadSB(nBits);
+            swf.ReadSB(nBits);
+            swf.ReadSB(nBits);
 
             // Frame rate (stored in UI8.UI8 format)
-            ushort frameRateMinor = swf.ReadUI8();
-            ushort frameRateMajor = swf.ReadUI8();
-            this.frameRate = Convert.ToSingle(String.Format("{0}.{1}", frameRateMajor, frameRateMinor));    // TODO: Improve this later
-            Trace.WriteLine(String.Format("Frame rate  : {0} fps", this.FrameRate));
+            swf.ReadUI8();
+            swf.ReadUI8();
 
             // Frame count
-            this.frameCount = swf.ReadUI16();
-            Trace.WriteLine(String.Format("Frame count : {0}", this.FrameCount));
+            swf.ReadUI16();
 
             return true;
         }
 
-        // Doesn't do much but iterate through the tags
+        // Iterate through the tags
         private void IdentifyTags()
         {
             Tag tag = null;
@@ -167,13 +112,32 @@ namespace FlashTools
             {
                 tag = new Tag(swf);
                 if (tag.Code == 36) AddPNG(tag.Png);
-                if (tag.Code == 76) AddSymbol(tag.Symbols);
+                if (tag.Code == 76) MatchSymbols(tag.Symbols);
             } while (tag.Code != 0);
         }
 
-        public void Close()
+        // Extract all the PNGs
+        public void ExtractImages(string outputPath)
         {
-            this.stream.Close();
+            foreach (DefineBitsLossless2 image in PNGImages)
+            {
+                Console.WriteLine("Extracting {0}", image.SymbolName);
+
+                string destinationPath = Path.Combine(outputPath, string.Format("{0}.png", image.SymbolName));
+
+                byte[] BitmapPixelData = new byte[image.BitmapArea];
+                BitmapPixelData = image.BitmapPixelData.ToArray();
+
+                GCHandle PinnedBitmapPixelData = GCHandle.Alloc(BitmapPixelData, GCHandleType.Pinned);
+                IntPtr BitmapPixelDataPtr = PinnedBitmapPixelData.AddrOfPinnedObject();
+
+                using (Bitmap newPNG = new Bitmap(image.BitmapWidth, image.BitmapHeight, image.BitmapStride, PixelFormat.Format32bppPArgb, BitmapPixelDataPtr))
+                {
+                    newPNG.Save(destinationPath, ImageFormat.Png);
+                    newPNG.Dispose();
+                    PinnedBitmapPixelData.Free();
+                }
+            }
         }
     }
 }

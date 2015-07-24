@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace FlashTools
+namespace SWFTools
 {
     public class DefineBitsLossless2
     {

@@ -37,7 +37,7 @@ namespace Blazinix.INI
         /// Value Name
         public void INIWriteValue(string Section, string Key, string Value)
         {
-            WritePrivateProfileString(Section, Key, Value, this.path);
+            WritePrivateProfileString(Section, Key, Value, path);
         }
 
         /// <summary>
@@ -51,7 +51,7 @@ namespace Blazinix.INI
         {
             StringBuilder temp = new StringBuilder(255);
             int i = GetPrivateProfileString(Section, Key, "", temp,
-                                            255, this.path);
+                                            255, path);
             return temp.ToString();
 
         }
