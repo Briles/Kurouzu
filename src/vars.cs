@@ -51,7 +51,7 @@ namespace Kurouzu.Defaults
                     { "Spiritstones", "64x64" }
                 }
             },
-            new GameInfo { 
+            new GameInfo {
                 Title = "Dota 2",
                 Binary = "dota.exe",
                 Source = @"C:\Program Files (x86)\Steam\SteamApps\common\dota 2 beta\",
@@ -141,9 +141,16 @@ namespace Kurouzu.Defaults
             new GameInfo {
                 Title = "Strife",
                 Binary = "strife.exe",
-                Source = @"C:\Program Files (x86)\Steam\SteamApps\common\Strife\", 
+                Source = @"C:\Program Files (x86)\Steam\SteamApps\common\Strife\",
                 Leaf = 2,
-                Dimensions = new Dictionary<string, string>() {}
+                Dimensions = new Dictionary<string, string>() {
+                    { "Abilities", "128x128" },
+                    { "HeroesCircle", "128x128" },
+                    { "HeroesPortrait", "128x128" },
+                    { "HeroesSquare", "128x128" },
+                    { "Items", "128x128" },
+                    { "Pets", "128x128" }
+                }
             }
         };
     }

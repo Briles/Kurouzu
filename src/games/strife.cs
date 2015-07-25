@@ -15,10 +15,10 @@ namespace Kurouzu.Games
     {
         public static void Process()
         {
-            const string HeroesSquare = @"Strife\Heroes\Square\";
+            const string Abilities = @"Strife\Abilities\";
             const string HeroesCircle = @"Strife\Heroes\Circle\";
             const string HeroesPortrait = @"Strife\Heroes\Portrait\";
-            const string Abilities = @"Strife\Abilities\";
+            const string HeroesSquare = @"Strife\Heroes\Square\";
             const string Items = @"Strife\Items\";
             const string Pets = @"Strife\Pets\";
             string[] Directories = { HeroesSquare, HeroesCircle, HeroesPortrait, Abilities, Items, Pets };
