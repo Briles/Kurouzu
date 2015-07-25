@@ -9,15 +9,15 @@ Kurouzu is a Windows Command Line utility for extracting, renaming, and scaling 
 * Dawngate (Legacy support, No longer developed)
 * [Dota 2](http://www.dota2.com/ "Dota 2")
 * [Hearthstone (planned)](http://www.battle.net/hearthstone/ "Hearthstone")
-* [Heroes of Newerth (in progress)](http://www.heroesofnewerth.com/?home "Heroes of Newerth")
-* [Heroes of the Storm (planned)](http://www.battle.net/heroes/ "Heroes of the Storm")
+* [Heroes of Newerth](http://www.heroesofnewerth.com/?home "Heroes of Newerth")
+* [Heroes of the Storm (in progress)](http://www.battle.net/heroes/ "Heroes of the Storm")
 * [League of Legends](http://www.leagueoflegends.com/ "League of Legends")
 * [Smite](http://www.hirezstudios.com/smite "Smite")
 * [StarCraft II](http://www.battle.net/sc2/ "StarCraft II")
-* [Strife (planned)](https://strife.com/ "Strife")
+* [Strife](https://strife.com/ "Strife")
 * [Unreal Tournament 4 (planned)](https://www.unrealtournament.com/ "Unreal Tournament 4")
 
-### Dependencies
+### Dependencies & Requirements
 The following need to be on your path for Kurouzu to work.
 
 For Scaling (optional):
