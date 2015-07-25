@@ -436,31 +436,32 @@ namespace Kurouzu.Helpers
         //
         public static void BatchFileCopy(List<CopyJob> copyJobs)
         {
-            Parallel.ForEach(copyJobs, CopyJob =>
+            foreach(CopyJob job in copyJobs)
             {
                 SearchOption RecursionFlag = SearchOption.TopDirectoryOnly;
-                if (CopyJob.Recursion == true)
+                if (job.Recursion == true)
                 {
                     RecursionFlag = SearchOption.AllDirectories;
                 }
                 string[] FilesFound;
-                if (string.IsNullOrEmpty(CopyJob.ExcludePattern))
+                if (string.IsNullOrEmpty(job.ExcludePattern))
                 {
-                    FilesFound = Directory.GetFiles(CopyJob.Path, CopyJob.SearchPattern, RecursionFlag);
+                    FilesFound = Directory.GetFiles(job.Path, job.SearchPattern, RecursionFlag);
                 }
                 else
                 {
-                    string ExcludePattern = CopyJob.ExcludePattern;
+                    string ExcludePattern = job.ExcludePattern;
                     Regex r = new Regex(string.Format("^{0}$",ExcludePattern.Replace("*",".*")), RegexOptions.IgnoreCase);
-                    FilesFound = (Directory.GetFiles(CopyJob.Path, CopyJob.SearchPattern, RecursionFlag).Where(f => !r.IsMatch(Path.GetFileName(f)))).ToArray();
+                    FilesFound = (Directory.GetFiles(job.Path, job.SearchPattern, RecursionFlag).Where(f => !r.IsMatch(Path.GetFileName(f)))).ToArray();
                 }
                 foreach(string FoundFile in FilesFound)
                 {
                     string FileName = Path.GetFileName(FoundFile);
                     Console.WriteLine("Copying {0}", FileName);
-                    File.Copy(FoundFile, Path.Combine(Globals.Paths.Assets, CopyJob.OutputPath, "Source", FileName), true);
+                    string destPath = Path.Combine(Globals.Paths.Assets, job.OutputPath, "Source", FileName);
+                    if (!File.Exists(destPath)) File.Move(FoundFile, destPath);
                 }
-            });
+            }
         }
 
         //

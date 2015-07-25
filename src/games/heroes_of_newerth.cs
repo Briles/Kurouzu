@@ -30,7 +30,7 @@ namespace Kurouzu.Games
             string ExtractPath = Path.Combine(Globals.Paths.Assets, "Source", "Heroes of Newerth");
 
             Regex[] Filters = {
-                new Regex(@"00000000/items/[\w]*/icon.*.dds"),
+                new Regex(@"00000000/items/[\w/]*icon*.dds"),
                 new Regex(@"00000000/heroes/[\w]*/hero.*.dds"),
                 new Regex(@"00000000/heroes/[\w]*/ability.*icon.*.dds"),
                 new Regex(@"00000000/heroes/[\w]*/icon.*.dds")
@@ -111,11 +111,12 @@ namespace Kurouzu.Games
 
             // Copy the rest of the source assets
             // Copy jobs take the form { output path = string, { string start path, bool recursion flag, string search pattern, string exclude pattern } }
+            string destination = Path.Combine(Globals.Paths.Assets, "Source" ,"Heroes of Newerth");
             List<CopyJob> CopyJobs = new List<CopyJob>
             {
-                new CopyJob(Abilities, Path.Combine(Globals.Paths.Assets, @"00000000\heroes\"), true, "*ability*.dds", null),
-                new CopyJob(Heroes, Path.Combine(Globals.Paths.Assets, @"00000000\heroes\*\*\"), false, "*.dds", "*ability*.dds"),
-                new CopyJob(Items, Path.Combine(Globals.Paths.Assets, @"00000000\items\"), true, "*.dds", null)
+                new CopyJob(Abilities, Path.Combine(destination, @"00000000\heroes\"), true, "*ability*.dds", null),
+                new CopyJob(Heroes, Path.Combine(destination, @"00000000\heroes\"), true, "*.dds", "*ability*.dds"),
+                new CopyJob(Items, Path.Combine(destination, @"00000000\items\"), true, "*.dds", null)
             };
             Helper.BatchFileCopy(CopyJobs);
 
