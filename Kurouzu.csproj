@@ -209,12 +209,25 @@
     <None Include=".git\refs\heads\master" />
     <None Include=".git\refs\remotes\origin\master" />
     <None Include="app.config" />
+    <None Include="lib\SharpVPK\LICENSE" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Content Include=".git\ms-persist.xml" />
+    <Content Include="lib\quickbms_snap.txt" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="lib\SharpVPK\SharpVPK\ArchivePart.cs" />
+    <Compile Include="lib\SharpVPK\SharpVPK\Exceptions\ArchiveParsingException.cs" />
+    <Compile Include="lib\SharpVPK\SharpVPK\IVpkArchiveHeader.cs" />
+    <Compile Include="lib\SharpVPK\SharpVPK\V1\VpkArchiveHeaderV1.cs" />
+    <Compile Include="lib\SharpVPK\SharpVPK\V1\VpkReaderV1.cs" />
+    <Compile Include="lib\SharpVPK\SharpVPK\V2\VpkArchiveHeaderV2.cs" />
+    <Compile Include="lib\SharpVPK\SharpVPK\V2\VpkReaderV2.cs" />
+    <Compile Include="lib\SharpVPK\SharpVPK\VpkArchive.cs" />
+    <Compile Include="lib\SharpVPK\SharpVPK\VpkDirectory.cs" />
+    <Compile Include="lib\SharpVPK\SharpVPK\VpkEntry.cs" />
+    <Compile Include="lib\SharpVPK\SharpVPK\VpkReaderBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="src\options.cs" />
     <Compile Include="src\gga.cs" />
