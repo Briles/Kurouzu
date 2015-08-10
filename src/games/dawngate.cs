@@ -1,10 +1,10 @@
-using Blazinix.INI;
-using Kurouzu.Defaults;
-using Kurouzu.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using Blazinix.INI;
+using Kurouzu.Defaults;
+using Kurouzu.Helpers;
 
 namespace Kurouzu.Games
 {
@@ -12,86 +12,94 @@ namespace Kurouzu.Games
     {
         public static void Process()
         {
-            const string Abilities = @"Dawngate\Abilities\";
-            const string Items = @"Dawngate\Items\";
-            const string ShapersPortrait = @"Dawngate\Shapers\Portrait\";
-            const string ShapersSquare = @"Dawngate\Shapers\Square\";
-            const string Sparks = @"Dawngate\Sparks\";
-            const string Spells = @"Dawngate\Spells\";
-            const string Spiritstones = @"Dawngate\Spiritstones\";
-            string[] Directories = { Abilities, Items, ShapersPortrait, ShapersSquare, Sparks, Spells, Spiritstones };
-            Helper.BuildDirectoryTree(Directories);
+            const string abilities = @"Dawngate\Abilities\";
+            const string items = @"Dawngate\Items\";
+            const string shapersPortrait = @"Dawngate\Shapers\Portrait\";
+            const string shapersSquare = @"Dawngate\Shapers\Square\";
+            const string sparks = @"Dawngate\Sparks\";
+            const string spells = @"Dawngate\Spells\";
+            const string spiritstones = @"Dawngate\Spiritstones\";
+            string[] directories = { abilities, items, shapersPortrait, shapersSquare, sparks, spells, spiritstones };
+            Helper.BuildDirectoryTree(directories);
+
             // Get the path of the source
-            INIFile INI = new INIFile(Globals.Paths.ConfigurationFile);
-            string SourcePath = INI.INIReadValue("Game Paths", "Dawngate");
+            INIFile ini = new INIFile(Globals.Paths.ConfigurationFile);
+            string sourcePath = ini.INIReadValue("Game Paths", "Dawngate");
+
             // Get the source
-            string QuickBMSSnapFile = Path.Combine(Globals.Paths.Home, @"bin\quickbms_snap.txt");
-            string[] SourcePackages = Directory.GetFiles(Path.Combine(SourcePath, "data"), "*.snap", SearchOption.AllDirectories);
-            foreach(string SourcePackage in SourcePackages)
+            string quickBmsSnapFile = Path.Combine(Globals.Paths.Home, @"lib\quickbms_snap.txt");
+            string[] sourcePackages = Directory.GetFiles(Path.Combine(sourcePath, "data"), "*.snap", SearchOption.AllDirectories);
+
+            foreach(string sourcePackage in sourcePackages)
             {
-                var QuickBMS = new Process
+                var quickBms = new Process
                 {
                     StartInfo = new ProcessStartInfo {
                         FileName = "quickbms.exe",
-                        Arguments = string.Format(" -o -. -Y -f \"*_full.dds,*_portrait.dds,*_purchase.dds\" \"{0}\" \"{1}\" \"{2}\"", QuickBMSSnapFile, SourcePackage, Path.Combine(Globals.Paths.Assets, @"Source\Dawngate")),
+                        Arguments =
+                            $" -o -. -Y -f \"*_full.dds,*_portrait.dds,*_purchase.dds\" \"{quickBmsSnapFile}\" \"{sourcePackage}\" \"{Path.Combine(Globals.Paths.Assets, @"Source\Dawngate")}\"",
                         WindowStyle = ProcessWindowStyle.Hidden,
                         UseShellExecute = false,
                         RedirectStandardOutput = true,
                         CreateNoWindow = true
                     }
                 };
-                QuickBMS.Start();
-                while (!QuickBMS.StandardOutput.EndOfStream)
+                quickBms.Start();
+                while (!quickBms.StandardOutput.EndOfStream)
                 {
-                    string StandardOutputLine = QuickBMS.StandardOutput.ReadLine();
-                    Console.WriteLine(StandardOutputLine);
+                    string standardOutputLine = quickBms.StandardOutput.ReadLine();
+                    Console.WriteLine(standardOutputLine);
                 }
             }
-            var StragglingQuickBMS = new Process
+            var stragglingQuickBms = new Process
             {
                 StartInfo = new ProcessStartInfo {
                     FileName = "quickbms.exe",
-                    Arguments = string.Format(" -o -. -Y -f \"*advanced_*.dds,*basic_*.dds,*legendary_*.dds,*consumable_*.dds,*Spell_*.dds,*inventory_perk_shape_*.dds,*perk_gem_*.dds\" \"{0}\" \"{1}\" \"{2}\"", QuickBMSSnapFile, Path.Combine(SourcePath, @"Data\UI_Icons.snap"), Path.Combine(Globals.Paths.Assets, @"Source\Dawngate")),
+                    Arguments =
+                        $" -o -. -Y -f \"*advanced_*.dds,*basic_*.dds,*legendary_*.dds,*consumable_*.dds,*Spell_*.dds,*inventory_perk_shape_*.dds,*perk_gem_*.dds\" \"{quickBmsSnapFile}\" \"{Path.Combine(sourcePath, @"Data\UI_Icons.snap")}\" \"{Path.Combine(Globals.Paths.Assets, @"Source\Dawngate")}\"",
                     WindowStyle = ProcessWindowStyle.Hidden,
                     UseShellExecute = false,
                     RedirectStandardOutput = true,
                     CreateNoWindow = true
                 }
             };
-            StragglingQuickBMS.Start();
-            while (!StragglingQuickBMS.StandardOutput.EndOfStream)
+            stragglingQuickBms.Start();
+            while (!stragglingQuickBms.StandardOutput.EndOfStream)
             {
-                string line = StragglingQuickBMS.StandardOutput.ReadLine();
+                string line = stragglingQuickBms.StandardOutput.ReadLine();
                 Console.WriteLine(line);
             }
+
             // Copy the rest of the source assets
             // Copy jobs take the form { output path = string, { string start path, bool recursion flag, string search pattern, string exclude pattern } }
-            List<CopyJob> CopyJobs = new List<CopyJob>
+            List<CopyJob> copyJobs = new List<CopyJob>
             {
-                new CopyJob(Abilities, Path.Combine(Globals.Paths.Assets, @"Source\Dawngate\heroes"), true, "*_full.dds", null),
-                new CopyJob(Items, Path.Combine(Globals.Paths.Assets, @"Source\Dawngate\UI\Icons\ShopIcons\textures"), true, "*.dds", "Spell_*.dds"),
-                new CopyJob(ShapersPortrait, Path.Combine(Globals.Paths.Assets, @"Source\Dawngate\heroes"), true, "*_Purchase.dds", "*_*_Purchase.dds"),
-                new CopyJob(ShapersSquare, Path.Combine(Globals.Paths.Assets, @"Source\Dawngate\heroes"), true, "*_Portrait.dds", null),
-                new CopyJob(Sparks, Path.Combine(Globals.Paths.Assets, @"Source\Dawngate\UI\Icons\GemIcons\textures"), true, "perk_gem_*.dds", null),
-                new CopyJob(Spells, Path.Combine(Globals.Paths.Assets, @"Source\Dawngate\UI\Icons\ShopIcons\textures"), true, "Spell_*.dds", null),
-                new CopyJob(Spiritstones, Path.Combine(Globals.Paths.Assets, @"Source\Dawngate\UI\Icons\ShapeIcons\textures"), true, "inventory_perk_shape_*.dds", null)
+                new CopyJob(abilities, Path.Combine(Globals.Paths.Assets, @"Source\Dawngate\heroes"), true, "*_full.dds", null),
+                new CopyJob(items, Path.Combine(Globals.Paths.Assets, @"Source\Dawngate\UI\Icons\ShopIcons\textures"), true, "*.dds", "Spell_*.dds"),
+                new CopyJob(shapersPortrait, Path.Combine(Globals.Paths.Assets, @"Source\Dawngate\heroes"), true, "*_Purchase.dds", "*_*_Purchase.dds"),
+                new CopyJob(shapersSquare, Path.Combine(Globals.Paths.Assets, @"Source\Dawngate\heroes"), true, "*_Portrait.dds", null),
+                new CopyJob(sparks, Path.Combine(Globals.Paths.Assets, @"Source\Dawngate\UI\Icons\GemIcons\textures"), true, "perk_gem_*.dds", null),
+                new CopyJob(spells, Path.Combine(Globals.Paths.Assets, @"Source\Dawngate\UI\Icons\ShopIcons\textures"), true, "Spell_*.dds", null),
+                new CopyJob(spiritstones, Path.Combine(Globals.Paths.Assets, @"Source\Dawngate\UI\Icons\ShapeIcons\textures"), true, "inventory_perk_shape_*.dds", null)
             };
-            Helper.BatchFileCopy(CopyJobs);
+            Helper.BatchFileCopy(copyJobs);
+
             // Rename all the things
             Helper.BatchFileRename("Dawngate");
+
             // Scale all the things
             // Scaling jobs take the form { string start path, string search pattern, string exclude pattern }
-            List<ScalingJob> ScalingJobs = new List<ScalingJob>
+            List<ScalingJob> scalingJobs = new List<ScalingJob>
             {
-                new ScalingJob(Abilities),
-                new ScalingJob(Items),
-                new ScalingJob(ShapersPortrait),
-                new ScalingJob(ShapersSquare),
-                new ScalingJob(Sparks),
-                new ScalingJob(Spells),
-                new ScalingJob(Spiritstones)
+                new ScalingJob(abilities),
+                new ScalingJob(items),
+                new ScalingJob(shapersPortrait),
+                new ScalingJob(shapersSquare),
+                new ScalingJob(sparks),
+                new ScalingJob(spells),
+                new ScalingJob(spiritstones)
             };
-            Helper.BatchIMScale(ScalingJobs);
+            Helper.BatchIMScale(scalingJobs);
         }
     }
 }

@@ -1,7 +1,7 @@
 using Blazinix.INI;
 using Kurouzu.Defaults;
 using Kurouzu.Helpers;
-using SWFTools;
+using Kurouzu.SWF;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -13,78 +13,103 @@ namespace Kurouzu.Games
     {
         public static void Process()
         {
-            const string ChampionsSquare = @"League of Legends\Champions\Square\";
-            const string ChampionsPortrait = @"League of Legends\Champions\Portrait\";
-            const string ChampionsLandscape = @"League of Legends\Champions\Landscape\";
-            const string Abilities = @"League of Legends\Abilities\";
-            const string Items = @"League of Legends\Items\";
-            const string Spells = @"League of Legends\Spells\";
-            const string Masteries = @"League of Legends\Masteries\";
-            const string Runes = @"League of Legends\Runes\";
-            string[] Directories = { ChampionsSquare, ChampionsPortrait, ChampionsLandscape, Abilities, Items, Spells, Masteries, Runes };
-            Helper.BuildDirectoryTree(Directories);
+            const string championsSquare = @"League of Legends\Champions\Square\";
+            const string championsPortrait = @"League of Legends\Champions\Portrait\";
+            const string championsLandscape = @"League of Legends\Champions\Landscape\";
+            const string abilities = @"League of Legends\Abilities\";
+            const string items = @"League of Legends\Items\";
+            const string spells = @"League of Legends\Spells\";
+            const string masteries = @"League of Legends\Masteries\";
+            const string runes = @"League of Legends\Runes\";
+            const string wards = @"League of Legends\Wards\";
+            string[] directories =
+            {
+                championsSquare, championsPortrait, championsLandscape, abilities, items, spells,
+                masteries, runes, wards
+            };
+            Helper.BuildDirectoryTree(directories);
+
             // Get the path of the source
-            INIFile INI = new INIFile(Globals.Paths.ConfigurationFile);
-            string SourcePath = INI.INIReadValue("Game Paths", "League of Legends");
+            var ini = new INIFile(Globals.Paths.ConfigurationFile);
+            var sourcePath = ini.INIReadValue("Game Paths", "League of Legends");
+
             // Get the source
-            string[] NeededSWFs = { "ImagePack_spells.swf", "ImagePack_masteryIcons.swf", "ImagePack_items.swf" };
-            foreach (string NeededSWF in Directory.GetFiles(SourcePath, "ImagePack_*.swf", SearchOption.AllDirectories).Where(f => NeededSWFs.Contains(Path.GetFileName(f), StringComparer.OrdinalIgnoreCase)).ToList())
+            string[] neededSwFs = {"ImagePack_spells.swf", "ImagePack_masteryIcons.swf", "ImagePack_items.swf"};
+            foreach (
+                var neededSwf in
+                    Directory.GetFiles(sourcePath, "ImagePack_*.swf", SearchOption.AllDirectories)
+                        .Where(f => neededSwFs.Contains(Path.GetFileName(f), StringComparer.OrdinalIgnoreCase))
+                        .ToList())
             {
-                File.Copy(NeededSWF, Path.Combine(Globals.Paths.Assets, "Source", "League of Legends", Path.GetFileName(NeededSWF)), true);
-                Console.WriteLine("Copying {0}", NeededSWF);
+                File.Copy(neededSwf,
+                    Path.Combine(Globals.Paths.Assets, "Source", "League of Legends", Path.GetFileName(neededSwf)), true);
+                Console.WriteLine("Copying {0}", neededSwf);
             }
+
             // Extract the SWFs
-            foreach (string swfFile in Directory.GetFiles(Path.Combine(Globals.Paths.Assets, "Source", "League of Legends"), "*.swf", SearchOption.AllDirectories).ToList())
+            foreach (
+                var swfFile in
+                    Directory.GetFiles(Path.Combine(Globals.Paths.Assets, "Source", "League of Legends"), "*.swf",
+                        SearchOption.AllDirectories).ToList())
             {
-                string OutputPath = null;
+                string outputPath = null;
                 switch (Path.GetFileName(swfFile))
                 {
                     case "ImagePack_items.swf":
-                        OutputPath = Items;
+                        outputPath = items;
                         break;
                     case "ImagePack_spells.swf":
-                        OutputPath = Spells;
+                        outputPath = spells;
                         break;
                     case "ImagePack_masteryIcons.swf":
-                        OutputPath = Masteries;
+                        outputPath = masteries;
                         break;
                     default:
                         break;
                 }
-                SWFFile swf = new SWFFile(swfFile);
-                swf.ExtractImages(Path.Combine(Globals.Paths.Assets, OutputPath, "Source"));
+
+                var swf = new SwfFile(swfFile);
+                if (outputPath != null) swf.ExtractImages(Path.Combine(Globals.Paths.Assets, outputPath, "Source"));
             }
 
             // Copy the rest of the source assets
             // Copy jobs take the form { output path = string, { string start path, bool recursion flag, string search pattern, string exclude pattern } }
-            const string SourceReleases = @"RADS\projects\lol_air_client\releases";
-            string SourceVersion = Directory.GetDirectories(Path.Combine(SourcePath, SourceReleases))[0];
-            string SourceAssets = Path.Combine(SourcePath, SourceReleases, SourceVersion, @"deploy\assets");
-            List<CopyJob> CopyJobs = new List<CopyJob>
+            const string sourceReleases = @"RADS\projects\lol_air_client\releases";
+            var sourceVersion = Directory.GetDirectories(Path.Combine(sourcePath, sourceReleases))[0];
+            var sourceAssets = Path.Combine(sourcePath, sourceReleases, sourceVersion, @"deploy\assets");
+
+            var copyJobs = new List<CopyJob>
             {
-                new CopyJob(ChampionsPortrait, Path.Combine(SourceAssets, @"images\champions"), true, "*_0.jpg", "*_S*_*.jpg"),
-                new CopyJob(ChampionsLandscape, Path.Combine(SourceAssets, @"images\champions"), true, "*_Splash_0.jpg", null),
-                new CopyJob(ChampionsSquare, Path.Combine(SourceAssets, @"images\champions"), true, "*_square_0.png", null),
-                new CopyJob(Abilities, Path.Combine(SourceAssets, @"images\abilities"), true, "*.png", null),
-                new CopyJob(Runes, Path.Combine(SourceAssets, @"storeImages\content\runes"), true, "*.png", null)
+                new CopyJob(championsPortrait, Path.Combine(sourceAssets, @"images\champions"), false, "*_0.jpg",
+                    "*_S*_*.jpg"),
+                new CopyJob(championsLandscape, Path.Combine(sourceAssets, @"images\champions"), false, "*_Splash_0.jpg",
+                    null),
+                new CopyJob(championsSquare, Path.Combine(sourceAssets, @"images\champions"), false, "*_Square_0.png",
+                    null),
+                new CopyJob(abilities, Path.Combine(sourceAssets, @"images\abilities"), false, "*.png", null),
+                new CopyJob(runes, Path.Combine(sourceAssets, @"images\runes"), true, "*.png", null),
+                new CopyJob(wards, Path.Combine(sourceAssets, @"images\misc\wards"), false, "wardImage_*.png", null)
             };
-            Helper.BatchFileCopy(CopyJobs);
+            Helper.BatchFileCopy(copyJobs);
+
             // Rename all the things
             Helper.BatchFileRename("League of Legends");
+
             // Scale all the things
             // Scaling jobs take the form { string start path, string search pattern, string exclude pattern }
-            List<ScalingJob> ScalingJobs = new List<ScalingJob>
+            var scalingJobs = new List<ScalingJob>
             {
-                new ScalingJob(ChampionsLandscape, "*.jpg"),
-                new ScalingJob(ChampionsPortrait, "*.jpg"),
-                new ScalingJob(ChampionsSquare, "*.png"),
-                new ScalingJob(Abilities, "*.png"),
-                new ScalingJob(Items, "*.png"),
-                new ScalingJob(Spells, "*.png"),
-                new ScalingJob(Masteries, "*.png"),
-                new ScalingJob(Runes, "*.png")
+                new ScalingJob(championsLandscape, "*.jpg"),
+                new ScalingJob(championsPortrait, "*.jpg"),
+                new ScalingJob(championsSquare, "*.png"),
+                new ScalingJob(abilities, "*.png"),
+                new ScalingJob(items, "*.png"),
+                new ScalingJob(spells, "*.png"),
+                new ScalingJob(masteries, "*.png"),
+                new ScalingJob(runes, "*.png"),
+                new ScalingJob(wards, "*.png")
             };
-            Helper.BatchIMScale(ScalingJobs);
+            Helper.BatchIMScale(scalingJobs);
         }
     }
 }

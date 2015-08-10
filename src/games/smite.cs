@@ -1,10 +1,10 @@
-using Blazinix.INI;
-using Kurouzu.Defaults;
-using Kurouzu.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using Blazinix.INI;
+using Kurouzu.Defaults;
+using Kurouzu.Helpers;
 
 namespace Kurouzu.Games
 {
@@ -12,64 +12,73 @@ namespace Kurouzu.Games
     {
         public static void Process()
         {
-            const string Abilities = @"Smite\Abilities\";
-            const string GodsPortrait = @"Smite\Gods\Portrait\";
-            const string GodsSquare = @"Smite\Gods\Square";
-            const string Items = @"Smite\Items\";
-            string[] Directories = { Abilities, Items, GodsPortrait, GodsSquare };
-            Helper.BuildDirectoryTree(Directories);
+            const string abilities = @"Smite\Abilities\";
+            const string godsPortrait = @"Smite\Gods\Portrait\";
+            const string godsSquare = @"Smite\Gods\Square";
+            const string items = @"Smite\Items\";
+            string[] directories = { abilities, items, godsPortrait, godsSquare };
+
+            Helper.BuildDirectoryTree(directories);
+
             // Get the path of the source
-            INIFile INI = new INIFile(Globals.Paths.ConfigurationFile);
-            string source_path = INI.INIReadValue("Game Paths", "Smite");
+            var ini = new INIFile(Globals.Paths.ConfigurationFile);
+            string sourcePath = ini.INIReadValue("Game Paths", "Smite");
+
             // Get the source
-            string[] SmitePackages = Directory.GetFiles(Path.Combine(source_path, @"BattleGame\CookedPC\GUI\Icons"), "*.upk", SearchOption.AllDirectories);
-            foreach(string Package in SmitePackages)
+            string[] smitePackages = { "GodSkins_Cards.upk", "GodSkins_Portraits_and_Icons.upk", "Icons.upk", "Portraits.upk" };
+            foreach (string packageName in smitePackages)
             {
-                var Umodel = new Process
+                string package = Path.Combine(sourcePath, @"BattleGame\CookedPC\GUI\Icons", packageName);
+
+                var umodel = new Process
                 {
                     StartInfo = new ProcessStartInfo {
                         FileName = "umodel.exe",
-                        Arguments = string.Format(" -export -uncook -groups -nomesh -noanim -nostat -out=\"{0}\" \"{1}\" -path=\"{2}\"", Path.Combine(Globals.Paths.Assets, @"Source\Smite"), Path.GetFileName(Package), Path.Combine(source_path, @"BattleGame\CookedPC\GUI\Icons")),
+                        Arguments =
+                            $" -export -uncook -groups -nomesh -noanim -nostat -out=\"{Path.Combine(Globals.Paths.Assets, @"Source\Smite")}\" \"{Path.GetFileName(package)}\" -path=\"{Path.Combine(sourcePath, @"BattleGame\CookedPC\GUI\Icons")}\"",
                         WindowStyle = ProcessWindowStyle.Hidden,
                         UseShellExecute = false,
                         RedirectStandardOutput = true,
                         CreateNoWindow = true
                     }
                 };
-                Umodel.Start();
-                while (!Umodel.StandardOutput.EndOfStream)
+                umodel.Start();
+                while (!umodel.StandardOutput.EndOfStream)
                 {
-                    string StandardOutputLine = Umodel.StandardOutput.ReadLine();
-                    Console.WriteLine(StandardOutputLine);
+                    string standardOutputLine = umodel.StandardOutput.ReadLine();
+                    Console.WriteLine(standardOutputLine);
                 }
             }
+
             // Copy the rest of the source assets
             // Copy jobs take the form { string output path, { string start path, bool recursion flag, string search pattern, string exclude pattern } }
-            List<CopyJob> CopyJobs = new List<CopyJob>
+            List<CopyJob> copyJobs = new List<CopyJob>
             {
-                new CopyJob(Abilities, Path.Combine(Globals.Paths.Assets, @"Source\Smite\icons\abilities"), true, "*.tga", null),
-                new CopyJob(Abilities, Path.Combine(Globals.Paths.Assets, @"Source\Smite\icons\abilitybanners"), true, "Icons_Agni_A01.tga", null),
-                new CopyJob(Abilities, Path.Combine(Globals.Paths.Assets, @"Source\Smite\icons\abilitybanners"), true, "Icons_Ymir_GlacialStrike.tga", null),
-                new CopyJob(GodsPortrait, Path.Combine(Globals.Paths.Assets, @"Source\Smite\GodSkins_Cards"), false, "*_Default_Card.tga", null),
-                new CopyJob(GodsSquare, Path.Combine(Globals.Paths.Assets, @"Source\Smite\GodSkins_Portraits_and_Icons"), true, "*_Default_Icon.tga", null),
+                new CopyJob(abilities, Path.Combine(Globals.Paths.Assets, @"Source\Smite\icons\abilities"), true, "*.tga", null),
+                new CopyJob(abilities, Path.Combine(Globals.Paths.Assets, @"Source\Smite\icons\abilitybanners"), true, "Icons_Agni_A01.tga", null),
+                new CopyJob(abilities, Path.Combine(Globals.Paths.Assets, @"Source\Smite\icons\abilitybanners"), true, "Icons_Ymir_GlacialStrike.tga", null),
+                new CopyJob(godsPortrait, Path.Combine(Globals.Paths.Assets, @"Source\Smite\GodSkins_Cards"), false, "*_Default_Card.tga", null),
+                new CopyJob(godsSquare, Path.Combine(Globals.Paths.Assets, @"Source\Smite\GodSkins_Portraits_and_Icons"), true, "*_Default_Icon.tga", null)
                 // new CopyJob(items, Path.Combine(Globals.Paths.Assets, @"Source\Smite\icons\items_delete"), true, "*.tga", null)
             };
-            Helper.BatchFileCopy(CopyJobs);
+            Helper.BatchFileCopy(copyJobs);
+
             // Rename all the things
             Helper.BatchFileRename("Smite");
+
             // Scale all the things
             // Scaling jobs take the form { string start path, string search pattern, string exclude pattern }
-            List<ScalingJob> ScalingJobs = new List<ScalingJob>
+            List<ScalingJob> scalingJobs = new List<ScalingJob>
             {
-                new ScalingJob(Abilities, "agni-q.tga", null),
-                new ScalingJob(Abilities, "ymir-w.tga", null),
-                new ScalingJob(Abilities, "*.tga", "agni-q.tga"),
-                new ScalingJob(Abilities, "*.tga", "ymir-w.tga"),
-                new ScalingJob(GodsPortrait, "*.tga", null),
-                new ScalingJob(GodsSquare, "*.tga", null),
-                new ScalingJob(Items, "*.tga", null)
+                new ScalingJob(abilities, "agni-q.tga", null),
+                new ScalingJob(abilities, "ymir-w.tga", null),
+                new ScalingJob(abilities, "*.tga", "agni-q.tga"),
+                new ScalingJob(abilities, "*.tga", "ymir-w.tga"),
+                new ScalingJob(godsPortrait, "*.tga", null),
+                new ScalingJob(godsSquare, "*.tga", null),
+                new ScalingJob(items, "*.tga", null)
             };
-            Helper.BatchIMScale(ScalingJobs);
+            Helper.BatchIMScale(scalingJobs);
         }
     }
 }

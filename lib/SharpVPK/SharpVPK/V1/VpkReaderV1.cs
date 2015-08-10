@@ -1,4 +1,4 @@
-﻿using System.IO;
+﻿using System;
 using System.Runtime.InteropServices;
 
 namespace SharpVPK.V1
@@ -19,7 +19,7 @@ namespace SharpVPK.V1
 
         public override uint CalculateEntryOffset(uint offset)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
     }
 }

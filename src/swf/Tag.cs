@@ -4,51 +4,34 @@ using System.IO;
 using System.IO.Compression;
 using System.Text.RegularExpressions;
 
-namespace SWFTools
+namespace Kurouzu.SWF
 {
     public class Tag
     {
-        private ushort code;
-        private ulong length;
-        private DefineBitsLossless2 png = new DefineBitsLossless2();
-        private Dictionary<short, string> symbols = new Dictionary<short, string>();
-
         #region Properties
 
-        public ushort Code
-        {
-            get { return code; }
-        }
+        public ushort Code { get; }
 
-        public ulong Length
-        {
-            get { return length; }
-        }
+        public ulong Length { get; }
 
-        public DefineBitsLossless2 Png
-        {
-            get { return png; }
-        }
+        public DefineBitsLossless2 Png { get; } = new DefineBitsLossless2();
 
-        public Dictionary<short, string> Symbols
-        {
-            get { return symbols; }
-        }
+        public Dictionary<short, string> Symbols { get; } = new Dictionary<short, string>();
 
         #endregion
 
         #region Constructors
 
-        public Tag(SWFReader swf)
+        public Tag(SwfReader swf)
         {
             ushort tagInfo = swf.ReadUI16();
-            code = (ushort)(tagInfo >> 6);
-            length = (ulong)(tagInfo & 0x3f);
+            Code = (ushort)(tagInfo >> 6);
+            Length = (ulong)(tagInfo & 0x3f);
 
             // Is this a long data block?
             if (Length == 0x3f)
             {
-                length = swf.ReadUI32();
+                Length = swf.ReadUI32();
             }
 
             switch (Code)
@@ -57,46 +40,45 @@ namespace SWFTools
                 case 36:
                     ulong remainingLength = Length - 7;
 
-                    png.CharacterID = swf.ReadUI16();
-                    png.BitmapFormat = swf.ReadUI8();
-                    png.BitmapWidth = swf.ReadUI16();
-                    png.BitmapHeight = swf.ReadUI16();
+                    Png.CharacterId = swf.ReadUI16();
+                    Png.BitmapFormat = swf.ReadUI8();
+                    Png.BitmapWidth = swf.ReadUI16();
+                    Png.BitmapHeight = swf.ReadUI16();
 
-                    List<byte> CompressedPixelData = new List<byte>();
+                    List<byte> compressedPixelData = new List<byte>();
                     for (ulong b = 0; b < remainingLength; b++)
                     {
-                        CompressedPixelData.Add(swf.ReadByte());
+                        compressedPixelData.Add(swf.ReadByte());
                     }
-                    byte[] CompressedBitMapPixelData = new byte[remainingLength];
-                    CompressedBitMapPixelData = CompressedPixelData.ToArray();
-                    Stream PixelStream = new MemoryStream(CompressedBitMapPixelData);
+                    byte[] compressedBitMapPixelData = compressedPixelData.ToArray();
+                    Stream pixelStream = new MemoryStream(compressedBitMapPixelData);
 
-                    PixelStream.ReadByte();
-                    PixelStream.ReadByte();
+                    pixelStream.ReadByte();
+                    pixelStream.ReadByte();
 
-                    DeflateStream inflatedStream = new DeflateStream(PixelStream, CompressionMode.Decompress);
-                    PixelStream = inflatedStream;
+                    DeflateStream inflatedStream = new DeflateStream(pixelStream, CompressionMode.Decompress);
+                    pixelStream = inflatedStream;
 
-                    for (long c = 0; c < png.BitmapArea; c++)
+                    for (long c = 0; c < Png.BitmapArea; c++)
                     {
-                        byte alpha = Convert.ToByte(PixelStream.ReadByte());
-                        byte red = Convert.ToByte(PixelStream.ReadByte());
-                        byte green = Convert.ToByte(PixelStream.ReadByte());
-                        byte blue = Convert.ToByte(PixelStream.ReadByte());
-                        png.BitmapPixelData.AddRange(new byte[] { blue, green, red, alpha });
+                        byte alpha = Convert.ToByte(pixelStream.ReadByte());
+                        byte red = Convert.ToByte(pixelStream.ReadByte());
+                        byte green = Convert.ToByte(pixelStream.ReadByte());
+                        byte blue = Convert.ToByte(pixelStream.ReadByte());
+                        Png.BitmapPixelData.AddRange(new[] { blue, green, red, alpha });
                     }
                     break;
 
                 // SymbolClass
                 case 76:
-                    ushort NumSymbols = swf.ReadUI16();
-                    for (ushort s = 0; s < NumSymbols; s++)
+                    ushort numSymbols = swf.ReadUI16();
+                    for (ushort s = 0; s < numSymbols; s++)
                     {
-                        short tagID = swf.ReadSI16();
+                        short tagId = swf.ReadSI16();
                         string tagName = swf.ReadSTRING();
                         string prettyName = Regex.Replace(tagName, @"ImagePack_((items)|(masteryIcons)|(spells))_Embeds__e_(Spell_)?", "");
-                        if (!Symbols.ContainsKey(tagID)) {
-                            Symbols[tagID] = prettyName;
+                        if (!Symbols.ContainsKey(tagId)) {
+                            Symbols[tagId] = prettyName;
                         }
                     }
                     break;

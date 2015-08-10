@@ -35,13 +35,15 @@ namespace Kurouzu.Defaults
             public static readonly string[] Arguments = Environment.GetCommandLineArgs();
         }
 
-        public static readonly List<GameInfo> Games = new List<GameInfo>() {
+        public static readonly List<GameInfo> Games = new List<GameInfo>
+        {
             new GameInfo {
                 Title = "Dawngate",
                 Binary = "Dawngate.exe",
                 Source = @"C:\Program Files (x86)\Electronic Arts\Dawngate\game\",
                 Leaf = 1,
-                Dimensions = new Dictionary<string, string>() {
+                Dimensions = new Dictionary<string, string>
+                {
                     { "Abilities", "64x64" },
                     { "Items", "256x256" },
                     { "Shapers\\Portrait", "64x128" },
@@ -56,7 +58,8 @@ namespace Kurouzu.Defaults
                 Binary = "dota.exe",
                 Source = @"C:\Program Files (x86)\Steam\SteamApps\common\dota 2 beta\",
                 Leaf = 1,
-                Dimensions = new Dictionary<string, string>() {
+                Dimensions = new Dictionary<string, string>
+                {
                     { "Heroes\\Landscape", "128x72" },
                     { "Heroes\\Mini", "32x32" },
                     { "Heroes\\Portrait", "71x94" },
@@ -69,14 +72,15 @@ namespace Kurouzu.Defaults
                 Binary = "Hearthstone.exe",
                 Source = @"C:\Program Files (x86)\Hearthstone\",
                 Leaf = 1,
-                Dimensions = new Dictionary<string, string>() {}
+                Dimensions = new Dictionary<string, string>()
             },
             new GameInfo {
                 Title = "Heroes of Newerth",
                 Binary = "hon.exe",
                 Source = @"C:\Program Files (x86)\Heroes of Newerth\",
                 Leaf = 1,
-                Dimensions = new Dictionary<string, string>() {
+                Dimensions = new Dictionary<string, string>
+                {
                     { "Abilities", "128x128" },
                     { "Heroes", "128x128" },
                     { "Items", "128x128" }
@@ -87,7 +91,8 @@ namespace Kurouzu.Defaults
                 Binary = "Heroes of the Storm.exe",
                 Source = @"C:\Program Files (x86)\Heroes of the Storm\",
                 Leaf = 1,
-                Dimensions = new Dictionary<string, string>() {
+                Dimensions = new Dictionary<string, string>
+                {
                     { "Heroes\\Hexagon", "157x127" },
                     { "Heroes\\HexagonM", "80x92" },
                     { "Heroes\\Portrait", "149x347" },
@@ -101,7 +106,8 @@ namespace Kurouzu.Defaults
                 Binary = "lol.launcher.exe",
                 Source = @"C:\Program Files (x86)\League of Legends\",
                 Leaf = 1,
-                Dimensions = new Dictionary<string, string>() {
+                Dimensions = new Dictionary<string, string>
+                {
                     { "Abilities", "64x64"},
                     { "Champions\\Landscape", "1215x717" },
                     { "Champions\\Portrait", "308x560" },
@@ -117,7 +123,8 @@ namespace Kurouzu.Defaults
                 Binary = "Smite.exe",
                 Source = @"C:\Program Files (x86)\Hi-Rez Studios\HiRezGames\smite\",
                 Leaf = 3,
-                Dimensions = new Dictionary<string, string>() {
+                Dimensions = new Dictionary<string, string>
+                {
                     { "Abilities", "64x64" },
                     { "Gods\\Portrait", "388x512" },
                     { "Gods\\Square", "128x128" },
@@ -129,7 +136,8 @@ namespace Kurouzu.Defaults
                 Binary = "StarCraft II.exe",
                 Source = @"C:\Program Files (x86)\StarCraft II\",
                 Leaf = 1,
-                Dimensions = new Dictionary<string, string>() {
+                Dimensions = new Dictionary<string, string>
+                {
                     { "Abilities", "64x64" },
                     { "Buildings", "76x76" },
                     { "UI", "64x64" },
@@ -143,7 +151,8 @@ namespace Kurouzu.Defaults
                 Binary = "strife.exe",
                 Source = @"C:\Program Files (x86)\Steam\SteamApps\common\Strife\",
                 Leaf = 2,
-                Dimensions = new Dictionary<string, string>() {
+                Dimensions = new Dictionary<string, string>
+                {
                     { "Abilities", "128x128" },
                     { "HeroesCircle", "128x128" },
                     { "HeroesPortrait", "128x128" },

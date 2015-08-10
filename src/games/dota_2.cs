@@ -1,10 +1,10 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
 using Blazinix.INI;
 using Kurouzu.Defaults;
 using Kurouzu.Helpers;
 using SharpVPK;
-using System;
-using System.Collections.Generic;
-using System.IO;
 
 namespace Kurouzu.Games
 {
@@ -12,30 +12,30 @@ namespace Kurouzu.Games
     {
         public static void Process()
         {
-            const string HeroesMini = @"Dota 2\Heroes\Mini\";
-            const string HeroesLandscape = @"Dota 2\Heroes\Landscape\";
-            const string HeroesPortrait = @"Dota 2\Heroes\Portrait\";
-            const string Items = @"Dota 2\Items\";
-            const string Spells = @"Dota 2\Spells\";
-            string[] Directories = { HeroesMini, HeroesLandscape, HeroesPortrait, Items, Spells };
-            Helper.BuildDirectoryTree(Directories);
+            const string heroesMini = @"Dota 2\Heroes\Mini\";
+            const string heroesLandscape = @"Dota 2\Heroes\Landscape\";
+            const string heroesPortrait = @"Dota 2\Heroes\Portrait\";
+            const string items = @"Dota 2\Items\";
+            const string spells = @"Dota 2\Spells\";
+            string[] directories = { heroesMini, heroesLandscape, heroesPortrait, items, spells };
+            Helper.BuildDirectoryTree(directories);
 
             // Get the path of the source
-            INIFile INI = new INIFile(Globals.Paths.ConfigurationFile);
-            string sourcePath = INI.INIReadValue("Game Paths", "Dota 2");
+            INIFile ini = new INIFile(Globals.Paths.ConfigurationFile);
+            string sourcePath = ini.INIReadValue("Game Paths", "Dota 2");
 
             string vpkPath = Path.Combine(sourcePath, @"dota\pak01_dir.vpk");
             const string archivePrepend = @"resource/flash3/images/{0}";
 
             // Get the source
-            string[] ValvePackages = {"heroes", @"heroes\selection", "miniheroes", "spellicons", "items"};
-            foreach(string ValvePackage in ValvePackages)
+            string[] valvePackages = {"heroes", @"heroes\selection", "miniheroes", "spellicons", "items"};
+            foreach(string valvePackage in valvePackages)
             {
                 var valveArchive = new VpkArchive();
                 valveArchive.Load(vpkPath);
                 foreach (var directory in valveArchive.Directories)
                 {
-                    string rootDirectory = string.Format(archivePrepend, ValvePackage);
+                    string rootDirectory = string.Format(archivePrepend, valvePackage);
                     if (directory.ToString().Contains(rootDirectory)) {
                         foreach (var entry in directory.Entries)
                         {
@@ -58,30 +58,30 @@ namespace Kurouzu.Games
 
             // Copy the rest of the source assets
             // Copy jobs take the form { string output path, { string start path, bool recursion flag, string search pattern, string exclude pattern } }
-            List<CopyJob> CopyJobs = new List<CopyJob>
+            List<CopyJob> copyJobs = new List<CopyJob>
             {
-                new CopyJob(HeroesPortrait, Path.Combine(Globals.Paths.Assets, @"Source\Dota 2\heroes\selection"), true, "npc_dota_hero_*.png", null),
-                new CopyJob(HeroesLandscape, Path.Combine(Globals.Paths.Assets, @"Source\Dota 2\heroes"), false, "*.png", null),
-                new CopyJob(HeroesMini, Path.Combine(Globals.Paths.Assets, @"Source\Dota 2\miniheroes"), true, "*.png", null),
-                new CopyJob(Spells, Path.Combine(Globals.Paths.Assets, @"Source\Dota 2\spellicons"), true, "*.png", null),
-                new CopyJob(Items, Path.Combine(Globals.Paths.Assets, @"Source\Dota 2\items"), true, "*.png", null)
+                new CopyJob(heroesPortrait, Path.Combine(Globals.Paths.Assets, @"Source\Dota 2\heroes\selection"), true, "npc_dota_hero_*.png", null),
+                new CopyJob(heroesLandscape, Path.Combine(Globals.Paths.Assets, @"Source\Dota 2\heroes"), false, "*.png", null),
+                new CopyJob(heroesMini, Path.Combine(Globals.Paths.Assets, @"Source\Dota 2\miniheroes"), true, "*.png", null),
+                new CopyJob(spells, Path.Combine(Globals.Paths.Assets, @"Source\Dota 2\spellicons"), true, "*.png", null),
+                new CopyJob(items, Path.Combine(Globals.Paths.Assets, @"Source\Dota 2\items"), true, "*.png", null)
             };
-            Helper.BatchFileCopy(CopyJobs);
+            Helper.BatchFileCopy(copyJobs);
 
             // Rename all the things
             Helper.BatchFileRename("Dota 2");
 
             // Scale all the things
             // Scaling jobs take the form { string start path, string search pattern, string exclude pattern }
-            List<ScalingJob> ScalingJobs = new List<ScalingJob>
+            List<ScalingJob> scalingJobs = new List<ScalingJob>
             {
-                new ScalingJob(HeroesLandscape, "*.png"),
-                new ScalingJob(HeroesMini, "*.png"),
-                new ScalingJob(HeroesPortrait, "*.png"),
-                new ScalingJob(Items, "*.png"),
-                new ScalingJob(Spells, "*.png")
+                new ScalingJob(heroesLandscape, "*.png"),
+                new ScalingJob(heroesMini, "*.png"),
+                new ScalingJob(heroesPortrait, "*.png"),
+                new ScalingJob(items, "*.png"),
+                new ScalingJob(spells, "*.png")
             };
-            Helper.BatchIMScale(ScalingJobs);
+            Helper.BatchIMScale(scalingJobs);
         }
     }
 }

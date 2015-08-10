@@ -1,10 +1,10 @@
-using Blazinix.INI;
-using Kurouzu.Defaults;
-using Kurouzu.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using Blazinix.INI;
+using Kurouzu.Defaults;
+using Kurouzu.Helpers;
 
 namespace Kurouzu.Games
 {
@@ -12,55 +12,61 @@ namespace Kurouzu.Games
     {
         public static void Process()
         {
-            const string HeroesPortrait = @"Heroes of the Storm\Heroes\Portrait\";
-            const string HeroesLandscape = @"Heroes of the Storm\Heroes\Portrait\";
-            const string HeroesRound = @"Heroes of the Storm\Heroes\Round\";
-            const string HeroesBanner = @"Heroes of the Storm\Heroes\Banner\";
-            const string Talents = @"Heroes of the Storm\Talents\";
-            const string UI = @"Heroes of the Storm\UI\";
-            string[] Directories = { HeroesPortrait, HeroesLandscape, HeroesRound, HeroesBanner, Talents, UI };
-            Helper.BuildDirectoryTree(Directories);
+            const string heroesPortrait = @"Heroes of the Storm\Heroes\Portrait\";
+            const string heroesLandscape = @"Heroes of the Storm\Heroes\Portrait\";
+            const string heroesRound = @"Heroes of the Storm\Heroes\Round\";
+            const string heroesBanner = @"Heroes of the Storm\Heroes\Banner\";
+            const string talents = @"Heroes of the Storm\Talents\";
+            const string ui = @"Heroes of the Storm\UI\";
+            string[] directories = { heroesPortrait, heroesLandscape, heroesRound, heroesBanner, talents, ui };
+            Helper.BuildDirectoryTree(directories);
+
             // Get the path of the source
-            INIFile INI = new INIFile(Globals.Paths.ConfigurationFile);
-            string SourcePath = INI.INIReadValue("Game Paths", "Heroes of the Storm");
+            INIFile ini = new INIFile(Globals.Paths.ConfigurationFile);
+            string sourcePath = ini.INIReadValue("Game Paths", "Heroes of the Storm");
+
             // Get the source
             // string[] filters = { "*portrait*static.dds", "*-unit-*.dds", "*-building-*.dds", "*-ability-*.dds", "*-armor-*.dds", "*-upgrade-*.dds", "*icon-*nobg.dds" };
-            string GameData = Path.Combine(SourcePath, @"HeroesData");
-            string DestinationPath = Path.Combine(Globals.Paths.Assets, "Source", "Heroes of the Storm");
-            var CascView = new Process
+            string gameData = Path.Combine(sourcePath, @"HeroesData");
+            string destinationPath = Path.Combine(Globals.Paths.Assets, "Source", "Heroes of the Storm");
+
+            var cascView = new Process
             {
                 StartInfo = new ProcessStartInfo
                 {
                     FileName = "CascView.exe",
-                    Arguments = string.Format(" \"{0}\" \"*.dds\" \"{1}\" /fp", GameData, DestinationPath),
+                    Arguments = $" \"{gameData}\" \"*.dds\" \"{destinationPath}\" /fp",
                     WindowStyle = ProcessWindowStyle.Hidden,
                     UseShellExecute = false,
                     RedirectStandardOutput = true,
                     CreateNoWindow = true
                 }
             };
-            CascView.Start();
-            while (!CascView.StandardOutput.EndOfStream)
+            cascView.Start();
+            while (!cascView.StandardOutput.EndOfStream)
             {
-                string StandardOutputLine = CascView.StandardOutput.ReadLine();
-                Console.WriteLine(StandardOutputLine);
+                string standardOutputLine = cascView.StandardOutput.ReadLine();
+                Console.WriteLine(standardOutputLine);
             }
+
             // Copy the rest of the source assets
             // Copy jobs take the form { string output path, { string start path, bool recursion flag, string search pattern, string exclude pattern } }
-            List<CopyJob> CopyJobs = new List<CopyJob>
+            List<CopyJob> copyJobs = new List<CopyJob>
             {
-                new CopyJob(HeroesPortrait, Path.Combine(Globals.Paths.Assets, @"Source\Heroes of the Storm"), true, "*portrait_static.dds", null)
+                new CopyJob(heroesPortrait, Path.Combine(Globals.Paths.Assets, @"Source\Heroes of the Storm"), true, "*portrait_static.dds", null)
             };
-            Helper.BatchFileCopy(CopyJobs);
+            Helper.BatchFileCopy(copyJobs);
+
             // Rename all the things
             Helper.BatchFileRename("Heroes of the Storm");
+
             // Scale all the things
             // Scaling jobs take the form { string start path, string search pattern, string exclude pattern }
-            List<ScalingJob> ScalingJobs = new List<ScalingJob>
+            List<ScalingJob> scalingJobs = new List<ScalingJob>
             {
-                new ScalingJob(HeroesPortrait, "*.dds")
+                new ScalingJob(heroesPortrait, "*.dds")
             };
-            Helper.BatchIMScale(ScalingJobs);
+            Helper.BatchIMScale(scalingJobs);
         }
     }
 }

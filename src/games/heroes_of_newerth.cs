@@ -15,21 +15,21 @@ namespace Kurouzu.Games
     {
         public static void Process()
         {
-            const string Heroes = @"Heroes of Newerth\Heroes\";
-            const string Abilities = @"Heroes of Newerth\Abilities\";
-            const string Items = @"Heroes of Newerth\Items\";
-            string[] Directories = { Heroes, Abilities, Items };
-            Helper.BuildDirectoryTree(Directories);
+            const string heroes = @"Heroes of Newerth\Heroes\";
+            const string abilities = @"Heroes of Newerth\Abilities\";
+            const string items = @"Heroes of Newerth\Items\";
+            string[] directories = { heroes, abilities, items };
+            Helper.BuildDirectoryTree(directories);
 
             // Get the path of the source
-            INIFile INI = new INIFile(Globals.Paths.ConfigurationFile);
-            string SourcePath = INI.INIReadValue("Game Paths", "Heroes of Newerth");
+            INIFile ini = new INIFile(Globals.Paths.ConfigurationFile);
+            string sourcePath = ini.INIReadValue("Game Paths", "Heroes of Newerth");
 
             // Get the source
-            string ResourcePath = Path.Combine(SourcePath, @"game\textures.s2z");
-            string ExtractPath = Path.Combine(Globals.Paths.Assets, "Source", "Heroes of Newerth");
+            string resourcePath = Path.Combine(sourcePath, @"game\textures.s2z");
+            string extractPath = Path.Combine(Globals.Paths.Assets, "Source", "Heroes of Newerth");
 
-            Regex[] Filters = {
+            Regex[] filters = {
                 new Regex(@"00000000/items/[\w/]*icon*.dds"),
                 new Regex(@"00000000/heroes/[\w]*/hero.*.dds"),
                 new Regex(@"00000000/heroes/[\w]*/ability.*icon.*.dds"),
@@ -39,23 +39,23 @@ namespace Kurouzu.Games
             ZipFile zf = null;
             try
             {
-                FileStream fs = File.OpenRead(ResourcePath);
+                FileStream fs = File.OpenRead(resourcePath);
                 zf = new ZipFile(fs);
 
                 foreach (ZipEntry zipEntry in zf)
                 {
                     string entryFileName = zipEntry.Name;
-                    foreach (var Filter in Filters)
+                    foreach (var filter in filters)
                     {
-                        if (Filter.IsMatch(entryFileName))
+                        if (filter.IsMatch(entryFileName))
                         {
                             Console.WriteLine("Extracting {0}", entryFileName);
                             byte[] buffer = new byte[4096];
                             Stream zipStream = zf.GetInputStream(zipEntry);
 
-                            string fullZipToPath = Path.Combine(ExtractPath, entryFileName);
+                            string fullZipToPath = Path.Combine(extractPath, entryFileName);
                             string directoryName = Path.GetDirectoryName(fullZipToPath);
-                            if (directoryName.Length > 0)
+                            if (!string.IsNullOrEmpty(directoryName))
                             {
                                 Directory.CreateDirectory(directoryName);
                             }
@@ -79,59 +79,63 @@ namespace Kurouzu.Games
 
             //
             // Make the filenames somewhat sane
-            foreach (string TextureFile in Directory.GetFiles(Path.Combine(Globals.Paths.Assets, "Source", "Heroes of Newerth"), "*.dds", SearchOption.AllDirectories).ToList())
+            foreach (string textureFile in Directory.GetFiles(Path.Combine(Globals.Paths.Assets, "Source", "Heroes of Newerth"), "*.dds", SearchOption.AllDirectories).ToList())
             {
-                int Counter = 0;
-                List<string> PathLeaves = new List<string>();
+                int counter = 0;
+                List<string> pathLeaves = new List<string>();
 
-                string[] Leaves = Path.GetDirectoryName(TextureFile).Split('\\');
-                Array.Reverse(Leaves);
-
-                do
+                var directoryName = Path.GetDirectoryName(textureFile);
+                if (directoryName != null)
                 {
-                    Counter++;
-                    string Leaf = Leaves[Counter - 1];
-                    PathLeaves.Add(Leaf);
-                } while (!PathLeaves.Contains("heroes") && !PathLeaves.Contains("items"));
+                    string[] leaves = directoryName.Split('\\');
+                    Array.Reverse(leaves);
 
-                PathLeaves = PathLeaves.Where(item => !item.Contains("heroes") && !item.Contains("items") && !item.Contains("icons") && !item.Contains("icon")).ToList();
-                PathLeaves.Reverse();
-
-                string LeafString = string.Join("_", PathLeaves.ToArray()).Replace(' ','_').ToLower();
-                string NewName = LeafString + Path.GetExtension(TextureFile);
-
-                if (!string.Equals(Path.GetFileNameWithoutExtension(TextureFile), "icon", StringComparison.OrdinalIgnoreCase))
-                {
-                    NewName = LeafString + '_' + Path.GetFileName(TextureFile);
+                    do
+                    {
+                        counter++;
+                        string leaf = leaves[counter - 1];
+                        pathLeaves.Add(leaf);
+                    } while (!pathLeaves.Contains("heroes") && !pathLeaves.Contains("items"));
                 }
 
-                Console.WriteLine("Renaming {0} to {1}", TextureFile, NewName);
-                File.Move(TextureFile, Path.Combine(Path.GetDirectoryName(TextureFile), NewName));
+                pathLeaves = pathLeaves.Where(item => !item.Contains("heroes") && !item.Contains("items") && !item.Contains("icons") && !item.Contains("icon")).ToList();
+                pathLeaves.Reverse();
+
+                string leafString = string.Join("_", pathLeaves.ToArray()).Replace(' ','_').ToLower();
+                string newName = leafString + Path.GetExtension(textureFile);
+
+                if (!string.Equals(Path.GetFileNameWithoutExtension(textureFile), "icon", StringComparison.OrdinalIgnoreCase))
+                {
+                    newName = leafString + '_' + Path.GetFileName(textureFile);
+                }
+
+                Console.WriteLine("Renaming {0} to {1}", textureFile, newName);
+                File.Move(textureFile, Path.Combine(Path.GetDirectoryName(textureFile), newName));
             }
 
             // Copy the rest of the source assets
             // Copy jobs take the form { output path = string, { string start path, bool recursion flag, string search pattern, string exclude pattern } }
             string destination = Path.Combine(Globals.Paths.Assets, "Source" ,"Heroes of Newerth");
-            List<CopyJob> CopyJobs = new List<CopyJob>
+            List<CopyJob> copyJobs = new List<CopyJob>
             {
-                new CopyJob(Abilities, Path.Combine(destination, @"00000000\heroes\"), true, "*ability*.dds", null),
-                new CopyJob(Heroes, Path.Combine(destination, @"00000000\heroes\"), true, "*.dds", "*ability*.dds"),
-                new CopyJob(Items, Path.Combine(destination, @"00000000\items\"), true, "*.dds", null)
+                new CopyJob(abilities, Path.Combine(destination, @"00000000\heroes\"), true, "*ability*.dds", null),
+                new CopyJob(heroes, Path.Combine(destination, @"00000000\heroes\"), true, "*.dds", "*ability*.dds"),
+                new CopyJob(items, Path.Combine(destination, @"00000000\items\"), true, "*.dds", null)
             };
-            Helper.BatchFileCopy(CopyJobs);
+            Helper.BatchFileCopy(copyJobs);
 
             // Rename all the things
             Helper.BatchFileRename("Heroes of Newerth");
 
             // Scale all the things
             // Scaling jobs take the form { string start path, string search pattern, string exclude pattern }
-            List<ScalingJob> ScalingJobs = new List<ScalingJob>
+            List<ScalingJob> scalingJobs = new List<ScalingJob>
             {
-                new ScalingJob(Heroes, "*.dds"),
-                new ScalingJob(Abilities, "*.dds"),
-                new ScalingJob(Items, "*.dds")
+                new ScalingJob(heroes, "*.dds"),
+                new ScalingJob(abilities, "*.dds"),
+                new ScalingJob(items, "*.dds")
             };
-            Helper.BatchIMScale(ScalingJobs);
+            Helper.BatchIMScale(scalingJobs);
         }
     }
 }

@@ -7,42 +7,30 @@ using System.IO.Compression;
 using System.Linq;
 using System.Runtime.InteropServices;
 
-namespace SWFTools
+namespace Kurouzu.SWF
 {
-    public class SWFFile
+    public class SwfFile
     {
-        private Stream stream = null;
-        private SWFReader swf = null;
-        private uint fileLength = 0;
-        private string fileName = null;
-        public List<DefineBitsLossless2> pngImages = new List<DefineBitsLossless2>();
+        private readonly Stream _stream;
+        private readonly SwfReader _swf;
 
         #region Properties
 
-        public uint FileLength
-        {
-            get { return fileLength; }
-        }
+        public uint FileLength { get; } = 0;
 
-        public string FileName
-        {
-            get { return fileName; }
-        }
+        public string FileName { get; }
 
-        public List<DefineBitsLossless2> PNGImages
-        {
-            get { return pngImages; }
-        }
+        public List<DefineBitsLossless2> PngImages { get; } = new List<DefineBitsLossless2>();
 
         #endregion
 
         #region Constructors
 
-        public SWFFile(string fileName)
+        public SwfFile(string fileName)
         {
-            this.fileName = Path.GetFileNameWithoutExtension(fileName);
-            stream = new FileStream(fileName, FileMode.Open, FileAccess.Read);
-            swf = new SWFReader(stream);
+            FileName = Path.GetFileNameWithoutExtension(fileName);
+            _stream = new FileStream(fileName, FileMode.Open, FileAccess.Read);
+            _swf = new SwfReader(_stream);
 
             if (ReadHeader())
             {
@@ -50,20 +38,20 @@ namespace SWFTools
             }
 
             // Close the stream
-            stream.Close();
+            _stream.Close();
         }
 
         #endregion
 
-        private void AddPNG(DefineBitsLossless2 image)
+        private void AddPng(DefineBitsLossless2 image)
         {
-            PNGImages.Add(image);
+            PngImages.Add(image);
         }
 
         private void MatchSymbols(Dictionary<short, string> symbols)
         {
             foreach (var symbol in symbols) {
-                var png = PNGImages.FirstOrDefault(x => x.CharacterID == symbol.Key);
+                var png = PngImages.FirstOrDefault(x => x.CharacterId == symbol.Key);
                 if (png != null) png.SymbolName = symbol.Value;
             }
 
@@ -72,33 +60,33 @@ namespace SWFTools
         private bool ReadHeader()
         {
             // Signature
-            swf.ReadUI8(3);
+            _swf.ReadUI8(3);
 
             // File version
-            swf.ReadUI8();
+            _swf.ReadUI8();
 
             // File length
-            swf.ReadUI32();
+            _swf.ReadUI32();
 
             // The swf is Zlib compressed from here on
-            swf.Stream.ReadByte(); // The first two bytes are Zlib info
-            swf.Stream.ReadByte(); //
-            DeflateStream inflatedStream = new DeflateStream(stream, CompressionMode.Decompress);
-            swf.Stream = inflatedStream;
+            _swf.Stream.ReadByte(); // The first two bytes are Zlib info
+            _swf.Stream.ReadByte(); //
+            DeflateStream inflatedStream = new DeflateStream(_stream, CompressionMode.Decompress);
+            _swf.Stream = inflatedStream;
 
             // Frame size
-            int nBits = (int) swf.ReadUB(5);
-            swf.ReadSB(nBits);
-            swf.ReadSB(nBits);
-            swf.ReadSB(nBits);
-            swf.ReadSB(nBits);
+            int nBits = (int) _swf.ReadUB(5);
+            _swf.ReadSB(nBits);
+            _swf.ReadSB(nBits);
+            _swf.ReadSB(nBits);
+            _swf.ReadSB(nBits);
 
             // Frame rate (stored in UI8.UI8 format)
-            swf.ReadUI8();
-            swf.ReadUI8();
+            _swf.ReadUI8();
+            _swf.ReadUI8();
 
             // Frame count
-            swf.ReadUI16();
+            _swf.ReadUI16();
 
             return true;
         }
@@ -110,8 +98,8 @@ namespace SWFTools
 
             do
             {
-                tag = new Tag(swf);
-                if (tag.Code == 36) AddPNG(tag.Png);
+                tag = new Tag(_swf);
+                if (tag.Code == 36) AddPng(tag.Png);
                 if (tag.Code == 76) MatchSymbols(tag.Symbols);
             } while (tag.Code != 0);
         }
@@ -119,23 +107,22 @@ namespace SWFTools
         // Extract all the PNGs
         public void ExtractImages(string outputPath)
         {
-            foreach (DefineBitsLossless2 image in PNGImages)
+            foreach (DefineBitsLossless2 image in PngImages)
             {
                 Console.WriteLine("Extracting {0}", image.SymbolName);
 
                 string destinationPath = Path.Combine(outputPath, string.Format("{0}.png", image.SymbolName));
 
-                byte[] BitmapPixelData = new byte[image.BitmapArea];
-                BitmapPixelData = image.BitmapPixelData.ToArray();
+                byte[] bitmapPixelData = image.BitmapPixelData.ToArray();
 
-                GCHandle PinnedBitmapPixelData = GCHandle.Alloc(BitmapPixelData, GCHandleType.Pinned);
-                IntPtr BitmapPixelDataPtr = PinnedBitmapPixelData.AddrOfPinnedObject();
+                GCHandle pinnedBitmapPixelData = GCHandle.Alloc(bitmapPixelData, GCHandleType.Pinned);
+                IntPtr bitmapPixelDataPtr = pinnedBitmapPixelData.AddrOfPinnedObject();
 
-                using (Bitmap newPNG = new Bitmap(image.BitmapWidth, image.BitmapHeight, image.BitmapStride, PixelFormat.Format32bppPArgb, BitmapPixelDataPtr))
+                using (Bitmap newPng = new Bitmap(image.BitmapWidth, image.BitmapHeight, image.BitmapStride, PixelFormat.Format32bppPArgb, bitmapPixelDataPtr))
                 {
-                    newPNG.Save(destinationPath, ImageFormat.Png);
-                    newPNG.Dispose();
-                    PinnedBitmapPixelData.Free();
+                    newPng.Save(destinationPath, ImageFormat.Png);
+                    newPng.Dispose();
+                    pinnedBitmapPixelData.Free();
                 }
             }
         }

@@ -229,28 +229,28 @@
     <Compile Include="lib\SharpVPK\SharpVPK\VpkEntry.cs" />
     <Compile Include="lib\SharpVPK\SharpVPK\VpkReaderBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="src\options.cs" />
-    <Compile Include="src\gga.cs" />
-    <Compile Include="src\helper.cs" />
+    <Compile Include="src\Args\options.cs" />
+    <Compile Include="src\Defaults\vars.cs" />
+    <Compile Include="src\Helpers\helpers.cs" />
+    <Compile Include="src\kurouzu.cs" />
     <Compile Include="src\ini.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="src\swf\DefineBitsLossless2.cs" />
-    <Compile Include="src\swf\SWFFile.cs" />
-    <Compile Include="src\swf\SWFReader.cs" />
-    <Compile Include="src\swf\Tag.cs" />
-    <Compile Include="src\vars.cs" />
-    <Compile Include="src\games\dawngate.cs" />
-    <Compile Include="src\games\dota_2.cs" />
-    <Compile Include="src\games\heroes_of_newerth.cs" />
-    <Compile Include="src\games\heroes_of_the_storm.cs" />
-    <Compile Include="src\games\league_of_legends.cs" />
-    <Compile Include="src\games\smite.cs" />
-    <Compile Include="src\games\starcraft_ii.cs" />
-    <Compile Include="src\games\strife.cs" />
+    <Compile Include="src\SWF\DefineBitsLossless2.cs" />
+    <Compile Include="src\SWF\SWFFile.cs" />
+    <Compile Include="src\SWF\SWFReader.cs" />
+    <Compile Include="src\SWF\Tag.cs" />
+    <Compile Include="src\Games\dawngate.cs" />
+    <Compile Include="src\Games\dota_2.cs" />
+    <Compile Include="src\Games\heroes_of_newerth.cs" />
+    <Compile Include="src\Games\heroes_of_the_storm.cs" />
+    <Compile Include="src\Games\league_of_legends.cs" />
+    <Compile Include="src\Games\smite.cs" />
+    <Compile Include="src\Games\starcraft_ii.cs" />
+    <Compile Include="src\Games\strife.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include=".git\lfs\objects\logs\" />
